@@ -10,6 +10,44 @@
 char username[16];
 char password[16];
 
+
+void gestor(){
+    int selection;
+
+    do{
+        printf(BColorCyan "\n###################################" ResetColor);
+        printf(BColorCyan "\n# " BColorWhite "Gestor UNIESP - %s" BColorCyan "       #" ResetColor, username);
+        printf(BColorCyan "\n# " ResetColor "1 - Solicitar nova Obra" BColorCyan "         #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "2 - Verificar custo da obra" BColorCyan "     #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "3 - Verificar histórico da obra" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "4 - Desconectar da conta" BColorCyan "        #" ResetColor);
+        printf(BColorCyan "\n###################################" ResetColor);
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+        scanf("%d%*c", &selection);
+
+        switch(selection){
+            case 1:
+                break;
+
+            case 2:
+                break;
+
+            case 3:
+                break;
+
+            case 4:
+                printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
+                break;
+            
+            default:
+                printf(ColorRed "Opção desconhecida, tente novamente.\n");
+                gestor();   
+                break;
+        }
+    }while(selection =! 4);
+}
+
 // Login Auth
 void authlogin(){
     int loggedin;
@@ -30,6 +68,7 @@ void authlogin(){
 
     if(strcmp(passgestor,password) == 0){
         loggedin = 1;
+        gestor();
     }
     else if(strcmp(passeng,password) == 0){
         loggedin = 1;
