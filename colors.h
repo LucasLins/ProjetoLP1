@@ -18,5 +18,8 @@
 #define BColorCyan "\e[1;96m"
 #define BColorWhite "\e[1;97m"
 
+// Foreground + Background
+#define FGBGWhite "\e[97;107m"
+
 // Clear color
 #define ResetColor "\e[0m"
