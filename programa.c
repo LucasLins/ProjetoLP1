@@ -4,11 +4,22 @@
 #include <string.h>
 #include "colors.h"
 
-// Constants
-
 // Variables
+//// login
 char password[16];
-int inputbuffer, success, choice;
+char name[20] = "Lucas Lins";
+
+//// Menus
+int inputbuffer, choice;
+
+//// Messages
+int messagepos = 0;
+char text[201];
+
+// Arrays
+//// Messages
+char messagehistory[31][201];
+char messageauthor[31][201];
 
 
 int verifychoice(){
@@ -30,8 +41,8 @@ int verifychoice(){
     }
 }
 
+// Área do Fornecedor
 void fornecedor(){
-    
 
     do{
         printf(BColorCyan "\n##############################################" ResetColor);
@@ -63,8 +74,8 @@ void fornecedor(){
     }while(choice =! 4);
 }
 
+// Área do Mestre de Obras
 void mestredeobra(){
-    
 
     do{
         printf(BColorCyan "\n#######################################" ResetColor);
@@ -104,10 +115,110 @@ void mestredeobra(){
     }while(choice =! 5);
 }
 
+// Área do Engenheiro
+int verifynumber(){
+    while (1) {
+        printf("\nDigite o número da mensagem que deseja remover:");
+        printf(ColorGreen "\n-> " ResetColor);
+        if (scanf("%d", &choice) < 0 || ((inputbuffer = getchar()) != EOF && inputbuffer != '\n')) { // 
+            clearerr(stdin);
+            do{
+                inputbuffer = getchar();
+            }while (inputbuffer != EOF && inputbuffer != '\n');
+            clearerr(stdin);
+            printf(ColorRed "Número desconhecido, digite novamente.\n" ResetColor);
+        }
+        else{
+            return choice;
+            break;
+        }
+    }
+}
+
+void addmessage(){
+    printf("\nDigite a mensagem que deseja adicionar:" ColorYellow " (Máximo 200 caracteres!)" ResetColor);
+    printf(ColorGreen "\n-> " ResetColor);
+    fgets(text, 201, stdin);
+    if(messagepos <= 30){
+        strcpy(messagehistory[messagepos], text);
+        strcpy(messageauthor[messagepos], name);
+        messagepos++;
+        printf(ColorGreen "Mensagem adicionada com sucesso!\n" ResetColor);
+    }
+    else
+        printf(ColorRed "O histórico de mensagens está cheio. Apague mensagens e tente novamente." ResetColor);
+}
+
+void viewmessage(){
+    int i;
+    for(i = 0; i < messagepos; i++){
+        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), messageauthor[i], messagehistory[i]);
+    }
+    if(messagepos == 0)
+        printf(ColorYellow "Não há mensagens para exibir." ResetColor);
+}
+
+void removemessage(){
+    int i;
+
+    viewmessage();
+        choice = verifynumber();
+
+    if(choice - 1 >= 0 && choice <= messagepos){
+        for(i = choice - 1; i < messagepos; i++){
+            strcpy(messagehistory[i], messagehistory[i+1]);
+            strcpy(messageauthor[i], messageauthor[i+1]);
+        }
+        strcpy(messagehistory[messagepos], "");
+        strcpy(messageauthor[messagepos], "");
+        messagepos--;
+        printf(ColorGreen "\nMensagem removida com sucesso!" ResetColor);
+    }
+    else
+        printf(ColorRed "Não foi possível localizar esta mensagem.\n" ResetColor);
+}
+
+void messages(){
+
+    do{
+        printf(BColorCyan "\n############################" ResetColor);
+        printf(BColorCyan "\n#  " BColorWhite "Engenheiro - Mensagens" BColorCyan "  #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "1 - Adicionar mensagem" BColorCyan "   #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "2 - Remover mensagem" BColorCyan "     #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "3 - Retornar" BColorCyan "             #" ResetColor);
+        printf(BColorCyan "\n############################" ResetColor);
+        choice = verifychoice();
+        
+        system("cls || clear");
+
+        switch(choice){
+            case 1:
+                addmessage();
+                messages();
+                break;
+
+            case 2:
+                if(messagepos == 0)
+                    viewmessage();
+                else
+                    removemessage();
+                messages();
+                break;
+
+            case 3:
+                engenheiro();
+                break;
+            
+            default:
+                printf(ColorRed "Opção desconhecida, tente novamente.\n");
+                messages();   
+                break;
+        }
+    }while(choice =! 4);
+}
 
 void engenheiro(){
     
-
     do{
         printf(BColorCyan "\n###############################" ResetColor);
         printf(BColorCyan "\n#         " BColorWhite "Engenheiro" BColorCyan "          #" ResetColor);
@@ -138,6 +249,7 @@ void engenheiro(){
                 break;
             
             case 5:
+                messages();
                 break;
             
             case 6:
@@ -152,9 +264,9 @@ void engenheiro(){
     }while(choice =! 6);
 }
 
+// Área do Gestor UNIESP
 void gestor(){
     
-
     do{
         printf(BColorCyan "\n###################################" ResetColor);
         printf(BColorCyan "\n#          " BColorWhite "Gestor UNIESP" BColorCyan "          #" ResetColor);
@@ -206,7 +318,6 @@ void authlogin(){
             printf(ColorRed "Muitas tentativas, tente novamente mais tarde.\n" ResetColor);
             loggedin = 1;
             attempts = 0;
-            success = 0;
         }
         else{
             printf("\nDigite a senha de acesso:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
@@ -263,7 +374,6 @@ int main(){
                 break;
             default:
                 printf(ColorRed "Opção desconhecida, digite novamente.\n" ResetColor);
-                success = 0;
                 break;
         }
     }while(choice != 2);
