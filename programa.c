@@ -23,7 +23,8 @@ char messageauthor[31][201];
 
 
 int verifychoice(){
-    while (1) {
+    int verified = 1;
+    while (verified) {
         printf("\nO que deseja fazer?");
         printf(ColorGreen "\n-> " ResetColor);
         if (scanf("%d", &choice) < 0 || ((inputbuffer = getchar()) != EOF && inputbuffer != '\n')) { // 
@@ -36,9 +37,14 @@ int verifychoice(){
         }
         else{
             return choice;
-            break;
+            verified = 0;
         }
     }
+}
+
+void clear(){
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
 }
 
 // Área do Fornecedor
@@ -117,7 +123,8 @@ void mestredeobra(){
 
 // Área do Engenheiro
 int verifynumber(){
-    while (1) {
+    int verified = 1;
+    while (verified) {
         printf("\nDigite o número da mensagem que deseja remover:");
         printf(ColorGreen "\n-> " ResetColor);
         if (scanf("%d", &choice) < 0 || ((inputbuffer = getchar()) != EOF && inputbuffer != '\n')) { // 
@@ -130,7 +137,7 @@ int verifynumber(){
         }
         else{
             return choice;
-            break;
+            verified = 0;
         }
     }
 }
@@ -147,15 +154,6 @@ void addmessage(){
     }
     else
         printf(ColorRed "O histórico de mensagens está cheio. Apague mensagens e tente novamente." ResetColor);
-}
-
-void viewmessage(){
-    int i;
-    for(i = 0; i < messagepos; i++){
-        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), messageauthor[i], messagehistory[i]);
-    }
-    if(messagepos == 0)
-        printf(ColorYellow "Não há mensagens para exibir." ResetColor);
 }
 
 void removemessage(){
@@ -265,6 +263,15 @@ void engenheiro(){
 }
 
 // Área do Gestor UNIESP
+void viewmessage(){
+    int i;
+    for(i = 0; i < messagepos; i++){
+        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), messageauthor[i], messagehistory[i]);
+    }
+    if(messagepos == 0)
+        printf(ColorYellow "Não há mensagens para exibir." ResetColor);
+}
+
 void gestor(){
     
     do{
@@ -287,6 +294,11 @@ void gestor(){
                 break;
 
             case 3:
+                viewmessage();
+                printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                scanf("%c");
+                clear();
+                gestor();
                 break;
 
             case 4:
