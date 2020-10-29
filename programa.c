@@ -21,7 +21,7 @@ char text[201];
 char messagehistory[31][201];
 char messageauthor[31][201];
 
-
+//General
 int verifychoice(){
     int verified = 1;
     while (verified) {
@@ -42,9 +42,31 @@ int verifychoice(){
     }
 }
 
-void clear(){
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {}
+char formattext(){
+    int i;
+    int lenght = strlen(text);
+    for(i = 40; i<lenght; i++){
+        if(i >= 36 && i <= 60){
+            if(text[i] == ' '){
+                text[i] = '\n';
+                i = 90;
+            }
+        }
+        if(i >= 95 && i <= 110){
+            if(text[i] == ' '){
+                text[i] = '\n';
+                i = 111;
+            }
+        }
+        if(i >= 145 && i <= 160){
+            if(text[i] == ' '){
+                text[i] = '\n';
+                i = 201;
+            }
+        }
+    }
+    text[lenght] = '\n';
+    return text;
 }
 
 // Área do Fornecedor
@@ -146,6 +168,8 @@ void addmessage(){
     printf("\nDigite a mensagem que deseja adicionar:" ColorYellow " (Máximo 200 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
     fgets(text, 201, stdin);
+    formattext();
+    fflush(stdin);
     if(messagepos <= 30){
         strcpy(messagehistory[messagepos], text);
         strcpy(messageauthor[messagepos], name);
@@ -265,6 +289,7 @@ void engenheiro(){
 // Área do Gestor UNIESP
 void viewmessage(){
     int i;
+    int j;
     for(i = 0; i < messagepos; i++){
         printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), messageauthor[i], messagehistory[i]);
     }
@@ -273,7 +298,7 @@ void viewmessage(){
 }
 
 void gestor(){
-    
+
     do{
         printf(BColorCyan "\n###################################" ResetColor);
         printf(BColorCyan "\n#          " BColorWhite "Gestor UNIESP" BColorCyan "          #" ResetColor);
@@ -297,7 +322,7 @@ void gestor(){
                 viewmessage();
                 printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
                 scanf("%c");
-                clear();
+                fflush(stdin);
                 gestor();
                 break;
 
