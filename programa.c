@@ -6,43 +6,44 @@
 
 // Variables
 //// login
+int loggedaccount;
+int type = -1; //
+char username[16];
 char password[16];
-char name[20] = "Lucas Lins";
+int accountpos = 1;
 
 //// Menus
 int inputbuffer, choice;
+char choicestr[2];
 
 //// Messages
 int messagepos = 0;
 char text[201];
 
-// Arrays
+
+// Structs
+//// Accounts
+struct accounts{
+    char username[16];
+    char password[16];
+    char name[21];
+    int type;
+    int status;
+}account[10];
+
 //// Messages
-char messagehistory[31][201];
-char messageauthor[31][201];
+struct messages{
+    char author[21];
+    char message[201];
+}message[20];
 
 //General
-int verifychoice(){
-    int verified = 1;
-    while (verified) {
-        printf("\nO que deseja fazer?");
-        printf(ColorGreen "\n-> " ResetColor);
-        if (scanf("%d", &choice) < 0 || ((inputbuffer = getchar()) != EOF && inputbuffer != '\n')) { // 
-            clearerr(stdin);
-            do{
-                inputbuffer = getchar();
-            }while (inputbuffer != EOF && inputbuffer != '\n');
-            clearerr(stdin);
-            printf(ColorRed "Opção desconhecida, digite novamente.\n" ResetColor);
-        }
-        else{
-            return choice;
-            verified = 0;
-        }
-    }
+void clearinput(){
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
 }
 
-char formattext(){
+char formattext(){ // Adiciona nova linha a cada 50 caracteres para manter o texto organizado
     int i;
     int lenght = strlen(text);
     for(i = 40; i<lenght; i++){
@@ -69,6 +70,93 @@ char formattext(){
     return text;
 }
 
+// Área do Administrador do sistema
+void addaccount(){
+
+    printf("\nDigite o usuário:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
+    printf(ColorGreen "\n-> " ResetColor);
+    
+    if(fgets(account[accountpos].username, 16, stdin)){
+        if(!strrchr(account[accountpos].username, '\n')){
+            clearinput();
+        }
+    }
+
+    printf("\nDigite a senha:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
+    printf(ColorGreen "\n->" ResetColor);
+
+    if(fgets(account[accountpos].password, 16, stdin)){
+        if(!strrchr(account[accountpos].password, '\n')){
+            clearinput();
+        }
+    }
+
+    printf("\nDigite o nome do funcionário:" ColorYellow "(máximo 20 caracteres!)" ResetColor);
+    printf(ColorGreen "\n-> " ResetColor);
+    
+    if(fgets(account[accountpos].name, 21, stdin)){
+        if(!strrchr(account[accountpos].name, '\n')){
+            clearinput();
+        }
+    }
+    account[accountpos].name[strlen(account[accountpos].name) - 1] = ""; // Remove o \n do nome para melhor utilização dessa variável.
+
+    printf("\nDigite o tipo (cargo) da conta:" ColorYellow "\n(1 = Gestor UNIESP | 2 = Engenheiro | 3 = Mestre de Obra | 4 = Fornecedor)" ResetColor);
+    printf(ColorGreen "\n->" ResetColor);
+
+    if(fgets(choicestr, 2, stdin)){
+        if(!strrchr(choicestr, '\n')){
+            clearinput();
+        }
+    }
+    if(atoi(choicestr) > 0 && atoi(choicestr) <= 4){
+        account[accountpos].type = atoi(choicestr);
+        printf(ColorGreen "Conta adicionada com sucesso!" ResetColor);
+        accountpos++;
+    }
+    else
+        printf(ColorRed "Número inválido");
+}
+
+void administrador(){
+    do{
+        printf(BColorCyan "\n##############################" ResetColor);
+        printf(BColorCyan "\n#            " BColorWhite "Admin" BColorCyan "           #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "1 - Adicionar novo usuário" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "2 - Desconectar da conta" BColorCyan "   #" ResetColor);
+        printf(BColorCyan "\n##############################" ResetColor);
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        if(fgets(choicestr, 2, stdin)){
+            if(!strrchr(choicestr, '\n')){
+            clearinput();
+            }
+        }
+
+        choice = atoi(choicestr);
+        
+        system("cls || clear");
+
+        switch(choice){
+            case 1:
+                addaccount();
+                administrador();
+                break;
+
+            case 2:
+                printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
+                break;
+            
+            default:
+                printf(ColorRed "Opção desconhecida, tente novamente.\n");
+                administrador();   
+                break;
+        }
+    }while(choice =! 2);
+}
+
+
 // Área do Fornecedor
 void fornecedor(){
 
@@ -79,7 +167,16 @@ void fornecedor(){
         printf(BColorCyan "\n# " ResetColor "2 - Adicionar o valor de três fornecedores" BColorCyan " #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "3 - Desconectar da conta" BColorCyan "                   #" ResetColor);
         printf(BColorCyan "\n##############################################" ResetColor);
-        choice = verifychoice();
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        if(fgets(choicestr, 2, stdin)){
+            if(!strrchr(choicestr, '\n')){
+            clearinput();
+            }
+        }
+
+        choice = atoi(choicestr);
         
         system("cls || clear");
 
@@ -99,7 +196,7 @@ void fornecedor(){
                 fornecedor();   
                 break;
         }
-    }while(choice =! 4);
+    }while(choice =! 3);
 }
 
 // Área do Mestre de Obras
@@ -114,7 +211,16 @@ void mestredeobra(){
         printf(BColorCyan "\n# " ResetColor "4 - Solicitar novos funcionários" BColorCyan "    #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "5 - Desconectar da conta" BColorCyan "            #" ResetColor);
         printf(BColorCyan "\n#######################################" ResetColor);
-        choice = verifychoice();
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        if(fgets(choicestr, 2, stdin)){
+            if(!strrchr(choicestr, '\n')){
+            clearinput();
+            }
+        }
+
+        choice = atoi(choicestr);
         
         system("cls || clear");
 
@@ -144,35 +250,22 @@ void mestredeobra(){
 }
 
 // Área do Engenheiro
-int verifynumber(){
-    int verified = 1;
-    while (verified) {
-        printf("\nDigite o número da mensagem que deseja remover:");
-        printf(ColorGreen "\n-> " ResetColor);
-        if (scanf("%d", &choice) < 0 || ((inputbuffer = getchar()) != EOF && inputbuffer != '\n')) { // 
-            clearerr(stdin);
-            do{
-                inputbuffer = getchar();
-            }while (inputbuffer != EOF && inputbuffer != '\n');
-            clearerr(stdin);
-            printf(ColorRed "Número desconhecido, digite novamente.\n" ResetColor);
-        }
-        else{
-            return choice;
-            verified = 0;
-        }
-    }
-}
-
 void addmessage(){
     printf("\nDigite a mensagem que deseja adicionar:" ColorYellow " (Máximo 200 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
-    fgets(text, 201, stdin);
-    formattext();
-    fflush(stdin);
-    if(messagepos <= 30){
-        strcpy(messagehistory[messagepos], text);
-        strcpy(messageauthor[messagepos], name);
+    if(fgets(text, sizeof(text), stdin)){
+        if(!strrchr(text, '\n')){
+            clearinput();
+        }
+    }
+
+    if(strlen(text) > 41)
+        formattext();        
+
+    
+    if(messagepos <= 20){
+        strncpy(message[messagepos].message, text, 201);
+        strncpy(message[messagepos].author, account[loggedaccount].name, 21);
         messagepos++;
         printf(ColorGreen "Mensagem adicionada com sucesso!\n" ResetColor);
     }
@@ -184,15 +277,22 @@ void removemessage(){
     int i;
 
     viewmessage();
-        choice = verifynumber();
+
+    printf("\nDigite o número da mensagem que deseja remover:");
+    printf(ColorGreen "\n-> " ResetColor);
+
+    if(fgets(choicestr, 2, stdin)){
+        if(!strrchr(choicestr, '\n')){
+        clearinput();
+        }
+    }
+
+    choice = atoi(choicestr);
 
     if(choice - 1 >= 0 && choice <= messagepos){
         for(i = choice - 1; i < messagepos; i++){
-            strcpy(messagehistory[i], messagehistory[i+1]);
-            strcpy(messageauthor[i], messageauthor[i+1]);
+            message[i] = message[i+1];
         }
-        strcpy(messagehistory[messagepos], "");
-        strcpy(messageauthor[messagepos], "");
         messagepos--;
         printf(ColorGreen "\nMensagem removida com sucesso!" ResetColor);
     }
@@ -209,7 +309,16 @@ void messages(){
         printf(BColorCyan "\n# " ResetColor "2 - Remover mensagem" BColorCyan "     #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "3 - Retornar" BColorCyan "             #" ResetColor);
         printf(BColorCyan "\n############################" ResetColor);
-        choice = verifychoice();
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        if(fgets(choicestr, 2, stdin)){
+            if(!strrchr(choicestr, '\n')){
+            clearinput();
+            }
+        }
+
+        choice = atoi(choicestr);
         
         system("cls || clear");
 
@@ -236,7 +345,7 @@ void messages(){
                 messages();   
                 break;
         }
-    }while(choice =! 4);
+    }while(choice =! 3);
 }
 
 void engenheiro(){
@@ -253,7 +362,16 @@ void engenheiro(){
         printf(BColorCyan "\n# " ResetColor "    acompanhamento da obra" BColorCyan "  #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "6 - Desconectar da conta" BColorCyan "    #" ResetColor);
         printf(BColorCyan "\n###############################" ResetColor);
-        choice = verifychoice();
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        if(fgets(choicestr, 2, stdin)){
+            if(!strrchr(choicestr, '\n')){
+            clearinput();
+            }
+        }
+
+        choice = atoi(choicestr);
         
         system("cls || clear");
 
@@ -289,9 +407,8 @@ void engenheiro(){
 // Área do Gestor UNIESP
 void viewmessage(){
     int i;
-    int j;
     for(i = 0; i < messagepos; i++){
-        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), messageauthor[i], messagehistory[i]);
+        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), message[i].author, message[i].message);
     }
     if(messagepos == 0)
         printf(ColorYellow "Não há mensagens para exibir." ResetColor);
@@ -307,7 +424,16 @@ void gestor(){
         printf(BColorCyan "\n# " ResetColor "3 - Verificar histórico da obra" BColorCyan " #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "4 - Desconectar da conta" BColorCyan "        #" ResetColor);
         printf(BColorCyan "\n###################################" ResetColor);
-        choice = verifychoice();
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        if(fgets(choicestr, 2, stdin)){
+            if(!strrchr(choicestr, '\n')){
+            clearinput();
+            }
+        }
+
+        choice = atoi(choicestr);
         
         system("cls || clear");
 
@@ -322,7 +448,6 @@ void gestor(){
                 viewmessage();
                 printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
                 scanf("%c");
-                fflush(stdin);
                 gestor();
                 break;
 
@@ -340,14 +465,27 @@ void gestor(){
 
 // Login Auth
 void authlogin(){
-    int loggedin;
-    int attempts = 0;
+    type = -1;
+    int i;
+    for(i = 0; i < accountpos; i++){
+        if(strncmp(account[i].username, username, 16) == 0 && strncmp(account[i].password, password, 16) == 0){
+            type = account[i].type;
+            loggedaccount = i; // current account logged
+            i = accountpos; // break loop
+        }
+    }
+}
 
-    // Senhas dos usuários
-    char passgestor[] = "gestoruni01";
-    char passeng[] = "eng01";
-    char passmdo[] = "mdo01";
-    char passforn[] = "forn01";
+void login(){
+    int attempts;    
+    int loggedin = 0;
+
+    if(strncmp(account[0].username, "adminuniesp\n", 16) != 0){ // Adiciona a conta do administrador do sistema, caso não exista.
+        strncpy(account[0].username,"adminuniesp\n", 16);
+        strncpy(account[0].password,"adminuniesp\n", 16);
+        strncpy(account[0].name,"Admin", 21);
+        account[0].type = 0;
+    }
 
     do{
         if(attempts >= 3){
@@ -357,34 +495,65 @@ void authlogin(){
             attempts = 0;
         }
         else{
-            printf("\nDigite a senha de acesso:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
-            printf(ColorGreen "\n-> " FGBGWhite);
-            scanf(" %s", &password);
+            printf("\nDigite o usuário:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
+            printf(ColorGreen "\n-> " ResetColor);
+            
+            if(fgets(username, sizeof(username), stdin)){
+                if(!strrchr(username, '\n')){
+                    clearinput();
+                }
+            }
+
+            printf("\nDigite a senha:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
+            printf(ColorGreen "\n->" FGBGWhite);
+
+            if(fgets(password, sizeof(password), stdin)){
+                if(!strrchr(password, '\n')){
+                    clearinput();
+                }
+            }
             printf(ResetColor);
-            if(strcmp(passgestor,password) == 0){
-                loggedin = 1;
+
+            authlogin();
+
+            if(type == -1){
                 system("cls || clear");
+                printf(ColorRed "Nome de usuário ou senha incorreto!\n" ResetColor);
+                attempts++;
+            }
+            else if(type == 0){
+                system("cls || clear");
+                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
+                loggedin = 1;
+                administrador();
+            }
+            else if(type == 1){
+                system("cls || clear");
+                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
+                loggedin = 1;
                 gestor();
             }
-            else if(strcmp(passeng,password) == 0){
-                loggedin = 1;
+            else if(type == 2){
                 system("cls || clear");
+                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
+                loggedin = 1;
                 engenheiro();
             }
-            else if(strcmp(passmdo,password) == 0){
-                loggedin = 1;
+            else if(type == 3){
                 system("cls || clear");
+                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
+                loggedin = 1;
                 mestredeobra();
             }
-            else if(strcmp(passforn,password) == 0){
-                loggedin = 1;
+            else if(type == 4){
                 system("cls || clear");
+                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
+                loggedin = 1;
                 fornecedor();
             }
             else{
-                attempts += 1;
-                if(attempts < 3)
-                    printf(ColorRed "\nSenha incorreta! Tente novamente." ResetColor);                
+                printf(ColorRed "Ocorreu um erro desconhecido. Entre em contato com o Administrador.\n" ResetColor);
+                loggedin = 1;
             }
         }
     }while(loggedin != 1);
@@ -398,13 +567,22 @@ int main(){
         printf(BColorCyan "\n# " ResetColor "1 - Fazer login" BColorCyan "      #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "2 - Sair do programa" BColorCyan " #" ResetColor);
         printf(BColorCyan "\n########################" ResetColor);
-        choice = verifychoice();
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        if(fgets(choicestr, 2, stdin)){
+            if(!strrchr(choicestr, '\n')){
+            clearinput();
+            }
+        }
+
+        choice = atoi(choicestr);
 
         system("cls || clear");
 
         switch(choice){
             case 1:
-                authlogin();
+                login();
                 break;
             case 2:
                 printf(ColorRed "Saindo do programa...\n" ResetColor);
