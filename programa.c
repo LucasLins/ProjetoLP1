@@ -4,6 +4,22 @@
 #include <string.h>
 #include "colors.h"
 
+// Functions
+void administrador(void);
+void gestor(void);
+void engenheiro(void);
+void mestredeobra(void);
+void fornecedor(void);
+void login(void);
+void authlogin(void);
+void addaccount(void);
+void addmessage(void);
+void viewmessage(void);
+void removemessage(void);
+void messages(void);
+void clearinput(void);
+void formattext(void);
+
 // Variables
 //// login
 int loggedaccount;
@@ -37,13 +53,59 @@ struct messages{
     char message[201];
 }message[20];
 
+
+// Main menu
+int main(){
+    
+    void administrador(void);
+    void gestor(void);
+    void engenheiro(void);
+    void mestredeobra(void);
+    void fornecedor(void);
+
+    do{
+        printf(BColorCyan "\n########################" ResetColor);
+        printf(BColorCyan "\n#   " BColorWhite "Alana Construções" BColorCyan "  #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "1 - Fazer login" BColorCyan "      #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "2 - Sair do programa" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n########################" ResetColor);
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        if(fgets(choicestr, 2, stdin)){
+            if(!strrchr(choicestr, '\n')){
+            clearinput();
+            }
+        }
+
+        choice = atoi(choicestr);
+
+        system("cls || clear");
+
+        switch(choice){
+            case 1:
+                login();
+                break;
+            case 2:
+                printf(ColorRed "Saindo do programa...\n" ResetColor);
+                break;
+            default:
+                printf(ColorRed "Opção desconhecida, digite novamente.\n" ResetColor);
+                break;
+        }
+    }while(choice != 2);
+
+    return 0;
+}
+
+
 //General
 void clearinput(){
     int c;
     while ((c = getchar()) != '\n' && c != EOF) { }
 }
 
-char formattext(){ // Adiciona nova linha a cada 50 caracteres para manter o texto organizado
+void formattext(){ // Adiciona nova linha a cada 50 caracteres para manter o texto organizado
     int i;
     int lenght = strlen(text);
     for(i = 40; i<lenght; i++){
@@ -66,8 +128,6 @@ char formattext(){ // Adiciona nova linha a cada 50 caracteres para manter o tex
             }
         }
     }
-    text[lenght] = '\n';
-    return text;
 }
 
 // Área do Administrador do sistema
@@ -99,7 +159,7 @@ void addaccount(){
             clearinput();
         }
     }
-    account[accountpos].name[strlen(account[accountpos].name) - 1] = ""; // Remove o \n do nome para melhor utilização dessa variável.
+    account[accountpos].name[strlen(account[accountpos].name) - 1] = '\0'; // Remove o \n do nome para melhor utilização dessa variável.
 
     printf("\nDigite o tipo (cargo) da conta:" ColorYellow "\n(1 = Gestor UNIESP | 2 = Engenheiro | 3 = Mestre de Obra | 4 = Fornecedor)" ResetColor);
     printf(ColorGreen "\n->" ResetColor);
@@ -447,7 +507,7 @@ void gestor(){
             case 3:
                 viewmessage();
                 printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
-                scanf("%c");
+                getchar();
                 gestor();
                 break;
 
@@ -557,41 +617,4 @@ void login(){
             }
         }
     }while(loggedin != 1);
-}
-
-int main(){
-    
-    do{
-        printf(BColorCyan "\n########################" ResetColor);
-        printf(BColorCyan "\n#   " BColorWhite "Alana Construções" BColorCyan "  #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "1 - Fazer login" BColorCyan "      #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "2 - Sair do programa" BColorCyan " #" ResetColor);
-        printf(BColorCyan "\n########################" ResetColor);
-        printf("\nO que deseja fazer?");
-        printf(ColorGreen "\n-> " ResetColor);
-
-        if(fgets(choicestr, 2, stdin)){
-            if(!strrchr(choicestr, '\n')){
-            clearinput();
-            }
-        }
-
-        choice = atoi(choicestr);
-
-        system("cls || clear");
-
-        switch(choice){
-            case 1:
-                login();
-                break;
-            case 2:
-                printf(ColorRed "Saindo do programa...\n" ResetColor);
-                break;
-            default:
-                printf(ColorRed "Opção desconhecida, digite novamente.\n" ResetColor);
-                break;
-        }
-    }while(choice != 2);
-
-    return 0;
 }
