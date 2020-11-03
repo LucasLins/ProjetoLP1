@@ -31,10 +31,11 @@ int accountpos = 1;
 
 //// Menus
 int inputbuffer, choice;
+int workpos = 0;
+int currentwork = 0;
 char choicestr[2];
 
 //// Messages
-int messagepos = 0;
 char text[201];
 
 
@@ -51,9 +52,18 @@ struct accounts{
 //// Messages
 struct messages{
     char author[21];
-    char message[201];
-}message[20];
+    char text[201];
+};
 
+//// Works
+struct works{
+    char workname[21];
+    float totalmaterials;
+    float totalemployees;
+
+    int messagepos;
+    struct messages message[20];
+}work[5];
 
 // Main menu
 int main(){
@@ -308,10 +318,10 @@ void administrador(){
 // Área do Gestor UNIESP
 void viewmessage(){
     int i;
-    for(i = 0; i < messagepos; i++){
-        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), message[i].author, message[i].message);
+    for(i = 0; i < work[currentwork].messagepos; i++){
+        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), work[currentwork].message[i].author, work[currentwork].message[i].text);
     }
-    if(messagepos == 0)
+    if(work[currentwork].messagepos == 0)
         printf(ColorYellow "Não há mensagens para exibir." ResetColor);
 }
 
@@ -372,10 +382,10 @@ void addmessage(){
         formattext();        
 
     
-    if(messagepos <= 20){
-        strncpy(message[messagepos].message, text, 201);
-        strncpy(message[messagepos].author, account[loggedaccount].name, 21);
-        messagepos++;
+    if(work[currentwork].messagepos <= 20){
+        strncpy(work[currentwork].message[work[currentwork].messagepos].text, text, 201);
+        strncpy(work[currentwork].message[work[currentwork].messagepos].author, account[loggedaccount].name, 21);
+        work[currentwork].messagepos++;
         printf(ColorGreen "Mensagem adicionada com sucesso!\n" ResetColor);
     }
     else
@@ -392,11 +402,11 @@ void removemessage(){
 
     getchoice();
 
-    if(choice - 1 >= 0 && choice <= messagepos){
-        for(i = choice - 1; i < messagepos; i++){
-            message[i] = message[i+1];
+    if(choice - 1 >= 0 && choice <= work[currentwork].messagepos){
+        for(i = choice - 1; i < work[currentwork].messagepos; i++){
+            work[currentwork].message[i] = work[currentwork].message[i+1];
         }
-        messagepos--;
+        work[currentwork].messagepos--;
         printf(ColorGreen "\nMensagem removida com sucesso!" ResetColor);
     }
     else
@@ -426,7 +436,7 @@ void messages(){
                 break;
 
             case 2:
-                if(messagepos == 0)
+                if(work[currentwork].messagepos == 0)
                     viewmessage();
                 else
                     removemessage();
