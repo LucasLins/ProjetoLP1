@@ -15,6 +15,8 @@ void getchoice(void);
 void login(void);
 void authlogin(void);
 void addaccount(void);
+void viewworks(void);
+void getwork(void);
 void addmessage(void);
 void viewmessage(void);
 void removemessage(void);
@@ -34,7 +36,7 @@ int connected = 0;
 //// Menus
 int inputbuffer, choice;
 int workpos = 0;
-int currentwork = 0;
+int currentwork = -1;
 char choicestr[2];
 
 //// Messages
@@ -60,6 +62,7 @@ struct messages{
 //// Works
 struct works{
     char workname[21];
+    char workdescription[51];
     float totalmaterials;
     float totalemployees;
 
@@ -99,7 +102,6 @@ int main(){
     return 0;
 }
 
-
 //General
 void getchoice(){
     if(fgets(choicestr, 2, stdin)){
@@ -138,6 +140,31 @@ void formattext(){ // Adiciona nova linha a cada 50 caracteres para manter o tex
                 i = 201;
             }
         }
+    }
+}
+
+void viewworks(){
+    int i;
+    for(i = 0; i < workpos; i++){
+        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Obra: " ResetColor "%s\n" BColorWhite "Descrição: " ResetColor "%s", (i + 1), work[i].workname, work[i].workdescription);
+    }
+    if(workpos == 0)
+        printf(ColorYellow "Não há obras para exibir." ResetColor);
+}
+
+void getwork(){
+    viewworks();
+
+    if(workpos > 0){
+        printf("\nDigite o número da Obra que deseja escolher:");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        getchoice();
+
+        if((choice - 1) >= 0 && (choice - 1) < workpos)
+            currentwork = choice - 1;
+        else
+            printf("Número da obra inválido.");
     }
 }
 
@@ -330,10 +357,11 @@ void gestor(){
     do{
         printf(BColorCyan "\n###################################" ResetColor);
         printf(BColorCyan "\n#          " BColorWhite "Gestor UNIESP" BColorCyan "          #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "1 - Solicitar nova Obra" BColorCyan "         #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "2 - Verificar custo da obra" BColorCyan "     #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "3 - Verificar histórico da obra" BColorCyan " #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "4 - Desconectar da conta" BColorCyan "        #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "1 - Escolher Obra" BColorCyan "               #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "2 - Solicitar nova Obra" BColorCyan "         #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "3 - Verificar custo da obra" BColorCyan "     #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "4 - Verificar histórico da obra" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "5 - Desconectar da conta" BColorCyan "        #" ResetColor);
         printf(BColorCyan "\n###################################" ResetColor);
         printf("\nO que deseja fazer?");
         printf(ColorGreen "\n-> " ResetColor);
@@ -344,18 +372,33 @@ void gestor(){
 
         switch(choice){
             case 1:
+                getwork();
                 break;
 
             case 2:
                 break;
 
             case 3:
-                viewmessage();
-                printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
-                getchar();
+                if(currentwork > -1){
+
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
                 break;
 
             case 4:
+                if(currentwork > -1){
+                    viewmessage();
+                    printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                    getchar();
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
+                break;
+
+            case 5:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
                 connected = 0;
                 break;
@@ -455,14 +498,15 @@ void engenheiro(){
     do{
         printf(BColorCyan "\n###############################" ResetColor);
         printf(BColorCyan "\n#         " BColorWhite "Engenheiro" BColorCyan "          #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "1 - Iniciar Obra" BColorCyan "            #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "2 - Contratar Funcionários" BColorCyan "  #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "3 - Verificar custo da obra" BColorCyan " #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "4 - Selecionar fornecedor e" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "1 - Escolher Obra" BColorCyan "           #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "2 - Iniciar Obra" BColorCyan "            #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "3 - Contratar Funcionários" BColorCyan "  #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "4 - Verificar custo da obra" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "5 - Selecionar fornecedor e" BColorCyan " #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "    finalizar compra" BColorCyan "        #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "5 - Adicionar mensagem de" BColorCyan "   #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "6 - Adicionar mensagem de" BColorCyan "   #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "    acompanhamento da obra" BColorCyan "  #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "6 - Desconectar da conta" BColorCyan "    #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "7 - Desconectar da conta" BColorCyan "    #" ResetColor);
         printf(BColorCyan "\n###############################" ResetColor);
         printf("\nO que deseja fazer?");
         printf(ColorGreen "\n-> " ResetColor);
@@ -473,22 +517,55 @@ void engenheiro(){
 
         switch(choice){
             case 1:
+                getwork();
                 break;
 
             case 2:
+                if(currentwork > -1){
+
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
                 break;
 
             case 3:
+                if(currentwork > -1){
+
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
                 break;
 
             case 4:
+                if(currentwork > -1){
+
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
                 break;
-            
+
             case 5:
-                messages();
+                if(currentwork > -1){
+
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
                 break;
             
             case 6:
+                if(currentwork > -1){
+                    messages();
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
+                break;
+            
+            case 7:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
                 connected = 0;
                 break;
@@ -506,11 +583,12 @@ void mestredeobra(){
     do{
         printf(BColorCyan "\n#######################################" ResetColor);
         printf(BColorCyan "\n#           " BColorWhite "Mestre de Obra" BColorCyan "            #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "1 - Solicitar Compra" BColorCyan "                #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "2 - Confirmar recebimento da compra" BColorCyan " #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "3 - Listar compras realizadas" BColorCyan "       #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "4 - Solicitar novos funcionários" BColorCyan "    #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "5 - Desconectar da conta" BColorCyan "            #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "1 - Escolher Obra" BColorCyan "                   #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "2 - Solicitar Compra" BColorCyan "                #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "3 - Confirmar recebimento da compra" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "4 - Listar compras realizadas" BColorCyan "       #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "5 - Solicitar novos funcionários" BColorCyan "    #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "6 - Desconectar da conta" BColorCyan "            #" ResetColor);
         printf(BColorCyan "\n#######################################" ResetColor);
         printf("\nO que deseja fazer?");
         printf(ColorGreen "\n-> " ResetColor);
@@ -521,18 +599,46 @@ void mestredeobra(){
 
         switch(choice){
             case 1:
+                getwork();
                 break;
 
             case 2:
-                break;
+                if(currentwork > -1){
 
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
+                break;
+            
             case 3:
+                if(currentwork > -1){
+
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
                 break;
 
             case 4:
+                if(currentwork > -1){
+
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
+                break;
+
+            case 5:
+                if(currentwork > -1){
+
+                }
+                else{
+                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                }
                 break;
             
-            case 5:
+            case 6:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
                 connected = 0;
                 break;
