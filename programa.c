@@ -5,6 +5,7 @@
 #include "colors.h"
 
 // Functions
+void home(void);
 void administrador(void);
 void gestor(void);
 void engenheiro(void);
@@ -28,6 +29,7 @@ int type = -1; //
 char username[16];
 char password[16];
 int accountpos = 1;
+int connected = 0;
 
 //// Menus
 int inputbuffer, choice;
@@ -197,42 +199,41 @@ void login(){
                 printf(ColorRed "Nome de usuário ou senha incorreto!\n" ResetColor);
                 attempts++;
             }
-            else if(type == 0){
-                system("cls || clear");
-                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
-                loggedin = 1;
-                administrador();
-            }
-            else if(type == 1){
-                system("cls || clear");
-                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
-                loggedin = 1;
-                gestor();
-            }
-            else if(type == 2){
-                system("cls || clear");
-                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
-                loggedin = 1;
-                engenheiro();
-            }
-            else if(type == 3){
-                system("cls || clear");
-                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
-                loggedin = 1;
-                mestredeobra();
-            }
-            else if(type == 4){
-                system("cls || clear");
-                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
-                loggedin = 1;
-                fornecedor();
-            }
             else{
-                printf(ColorRed "Ocorreu um erro desconhecido. Entre em contato com o Administrador.\n" ResetColor);
+                system("cls || clear");
+                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
+                connected = 1;
+                home();
                 loggedin = 1;
             }
         }
     }while(loggedin != 1);
+}
+
+void home(){
+    do{
+        switch(type){
+            case 0:
+                administrador();
+                break;
+            case 1:
+                gestor();
+                break;
+            case 2:
+                engenheiro();
+                break;
+            case 3:
+                mestredeobra();
+                break;
+            case 4:
+                fornecedor();
+                break;
+            default:
+                printf(ColorRed "\nOcorreu um erro desconhecido, entre em contato com o Administrador." ResetColor);
+                connected = 0;
+                break;
+        }
+    }while(connected);
 }
 
 // Área do Administrador do sistema
@@ -300,16 +301,15 @@ void administrador(){
         switch(choice){
             case 1:
                 addaccount();
-                administrador();
                 break;
 
             case 2:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
+                connected = 0;
                 break;
             
             default:
-                printf(ColorRed "Opção desconhecida, tente novamente.\n");
-                administrador();   
+                printf(ColorRed "Opção desconhecida, tente novamente.\n");  
                 break;
         }
     }while(choice =! 2);
@@ -353,16 +353,15 @@ void gestor(){
                 viewmessage();
                 printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
                 getchar();
-                gestor();
                 break;
 
             case 4:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
+                connected = 0;
                 break;
             
             default:
-                printf(ColorRed "Opção desconhecida, tente novamente.\n");
-                gestor();   
+                printf(ColorRed "Opção desconhecida, tente novamente.\n");   
                 break;
         }
     }while(choice =! 4);
@@ -432,7 +431,6 @@ void messages(){
         switch(choice){
             case 1:
                 addmessage();
-                messages();
                 break;
 
             case 2:
@@ -440,16 +438,13 @@ void messages(){
                     viewmessage();
                 else
                     removemessage();
-                messages();
                 break;
 
             case 3:
-                engenheiro();
                 break;
             
             default:
-                printf(ColorRed "Opção desconhecida, tente novamente.\n");
-                messages();   
+                printf(ColorRed "Opção desconhecida, tente novamente.\n");  
                 break;
         }
     }while(choice =! 3);
@@ -495,11 +490,11 @@ void engenheiro(){
             
             case 6:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
+                connected = 0;
                 break;
             
             default:
-                printf(ColorRed "Opção desconhecida, tente novamente.\n");
-                engenheiro();   
+                printf(ColorRed "Opção desconhecida, tente novamente.\n");  
                 break;
         }
     }while(choice =! 6);
@@ -539,11 +534,11 @@ void mestredeobra(){
             
             case 5:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
+                connected = 0;
                 break;
             
             default:
                 printf(ColorRed "Opção desconhecida, tente novamente.\n");
-                mestredeobra();   
                 break;
         }
     }while(choice =! 5);
@@ -575,11 +570,11 @@ void fornecedor(){
 
             case 3:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
+                connected = 0;
                 break;
             
             default:
                 printf(ColorRed "Opção desconhecida, tente novamente.\n");
-                fornecedor();   
                 break;
         }
     }while(choice =! 3);
