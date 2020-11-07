@@ -5,22 +5,34 @@
 #include "colors.h"
 
 // Functions
-void home(void);
+//// Menus
 void administrador(void);
 void gestor(void);
 void engenheiro(void);
 void mestredeobra(void);
 void fornecedor(void);
+
+//// Menu options
 void getchoice(void);
-void login(void);
-void authlogin(void);
+void messages(void);
 void addaccount(void);
 void viewworks(void);
 void getwork(void);
 void addmessage(void);
 void viewmessage(void);
 void removemessage(void);
-void messages(void);
+void requestwork(void);
+void viewworksrequest(void);
+void manageworksrequest(void);
+
+
+//// Login
+void home(void);
+void login(void);
+void authlogin(void);
+
+
+//// Other
 void clearinput(void);
 void formattext(void);
 
@@ -30,14 +42,15 @@ int loggedaccount;
 int type = -1; //
 char username[16];
 char password[16];
-int accountpos = 1;
 int connected = 0;
 
 //// Menus
 int inputbuffer, choice;
 int workpos = 0;
+int workrequestpos = 0;
 int currentwork = -1;
-char choicestr[2];
+char choicestr[5];
+int accountpos = 1;
 
 //// Messages
 char text[201];
@@ -60,6 +73,11 @@ struct messages{
 };
 
 //// Works
+struct worksrequest{
+    char workname[21];
+    char workdescription[51];
+}workrequest[5];
+
 struct works{
     char workname[21];
     char workdescription[51];
@@ -145,11 +163,16 @@ void formattext(){ // Adiciona nova linha a cada 50 caracteres para manter o tex
 
 void viewworks(){
     int i;
+    printf(BColorWhite "                      Obras                     \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     for(i = 0; i < workpos; i++){
         printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Obra: " ResetColor "%s\n" BColorWhite "Descrição: " ResetColor "%s", (i + 1), work[i].workname, work[i].workdescription);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     }
-    if(workpos == 0)
-        printf(ColorYellow "Não há obras para exibir." ResetColor);
+    if(workpos == 0){
+        system("clear || cls");
+        printf(ColorYellow "Não há obras para exibir.\n" ResetColor);
+    }
 }
 
 void getwork(){
@@ -161,10 +184,14 @@ void getwork(){
 
         getchoice();
 
-        if((choice - 1) >= 0 && (choice - 1) < workpos)
+        system("clear || cls");
+
+        if((choice - 1) >= 0 && (choice - 1) < workpos){
             currentwork = choice - 1;
+            printf(ColorGreen "Obra escolhida com sucesso!\n" ResetColor);
+        }
         else
-            printf("Número da obra inválido.");
+            printf(ColorRed "Número da obra inválido.\n" ResetColor);
     }
 }
 
@@ -200,6 +227,8 @@ void login(){
             attempts = 0;
         }
         else{
+            printf(BColorWhite "                      Login                     \n" ResetColor);
+            printf(ColorCyan "--------------------------------------------------\n" ResetColor);
             printf("\nDigite o usuário:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
             printf(ColorGreen "\n-> " ResetColor);
             
@@ -238,6 +267,7 @@ void login(){
 }
 
 void home(){
+    currentwork = -1;
     do{
         switch(type){
             case 0:
@@ -265,7 +295,8 @@ void home(){
 
 // Área do Administrador do sistema
 void addaccount(){
-
+    printf(BColorWhite "                Criar nova conta                \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     printf("\nDigite o usuário:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
     
@@ -302,9 +333,12 @@ void addaccount(){
             clearinput();
         }
     }
+
+    system("clear || cls");
+
     if(atoi(choicestr) > 0 && atoi(choicestr) <= 4){
         account[accountpos].type = atoi(choicestr);
-        printf(ColorGreen "Conta adicionada com sucesso!" ResetColor);
+        printf(ColorGreen "Conta adicionada com sucesso!\n" ResetColor);
         accountpos++;
     }
     else
@@ -343,13 +377,47 @@ void administrador(){
 }
 
 // Área do Gestor UNIESP
+void requestwork(){
+    printf(BColorWhite "              Solicitar nova obra               \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    printf("\nDigite o nome da obra: " ColorYellow "(máximo 20 caracteres!)" ResetColor);
+    printf(ColorGreen "\n-> " ResetColor);
+
+    if(fgets(workrequest[workrequestpos].workname, 21, stdin)){
+        if(!strrchr(workrequest[workrequestpos].workname, '\n')){
+            clearinput();
+        }
+    }
+    workrequest[workrequestpos].workname[strlen(workrequest[workrequestpos].workname) -1] = '\0'; // Remove o \n do fim da string para melhor exibição desta variável.
+
+    printf("Digite a descrição da obra: " ColorYellow "(máximo 50 caracteres!)" ResetColor);
+    printf(ColorGreen "\n-> " ResetColor);
+
+    if(fgets(workrequest[workrequestpos].workdescription, 51, stdin)){
+        if(!strrchr(workrequest[workrequestpos].workdescription, '\n')){
+            clearinput();
+        }
+    }
+
+    system("clear || cls");
+
+    printf(ColorGreen "Obra solicitada com sucesso!\n" ResetColor);
+
+    workrequestpos++;
+}
+
 void viewmessage(){
     int i;
+    printf(BColorWhite "                     Mensagens                  \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     for(i = 0; i < work[currentwork].messagepos; i++){
         printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), work[currentwork].message[i].author, work[currentwork].message[i].text);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     }
-    if(work[currentwork].messagepos == 0)
-        printf(ColorYellow "Não há mensagens para exibir." ResetColor);
+    if(work[currentwork].messagepos == 0){
+        system("clear || cls");
+        printf(ColorYellow "Não há mensagens para exibir.\n" ResetColor);
+    }
 }
 
 void gestor(){
@@ -376,6 +444,7 @@ void gestor(){
                 break;
 
             case 2:
+                requestwork();
                 break;
 
             case 3:
@@ -383,7 +452,7 @@ void gestor(){
 
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
 
@@ -392,9 +461,10 @@ void gestor(){
                     viewmessage();
                     printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
                     getchar();
+                    system("clear || cls");
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
 
@@ -411,8 +481,52 @@ void gestor(){
 }
 
 // Área do Engenheiro
+void viewworksrequest(){
+    int i;
+    printf(BColorWhite "             Solicitações de obra               \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    for(i = 0; i < workrequestpos; i++){
+        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Obra: " ResetColor "%s\n" BColorWhite "Descrição: " ResetColor "%s", (i + 1), workrequest[i].workname, workrequest[i].workdescription);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    }
+    if(workrequestpos == 0)
+        printf(ColorYellow "Não há solicitações de obras para exibir.\n" ResetColor);
+}
+
+void manageworksrequest(){
+    int i;
+    viewworksrequest();
+    if(workrequestpos > 0){
+        printf("\nDigite o número da solicitação de obra que deseja iniciar:");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        getchoice();
+
+        system("clear || cls");
+
+        if((choice - 1) >= 0 && (choice - 1) < workrequestpos){
+            // Copia as informações para a obra
+            strncpy(work[workpos].workname, workrequest[choice -1].workname, 21);
+            strncpy(work[workpos].workdescription, workrequest[choice -1].workdescription, 51);
+            workpos++;
+
+            // Remove a solicitação
+            for(i = (choice - 1); i < workrequestpos; i++){
+                workrequest[i] = workrequest[i + 1];
+            }
+            workrequestpos--;
+
+            printf(ColorGreen "Obra iniciada com sucesso!\n" ResetColor);
+        }
+        else
+            printf(ColorRed "\nObra selecionada não existe! Tente novamente.\n" ResetColor);
+    }
+}
+
 void addmessage(){
-    printf("\nDigite a mensagem que deseja adicionar:" ColorYellow " (Máximo 200 caracteres!)" ResetColor);
+    printf(BColorWhite "               Adicionar mensagem               \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    printf("\nDigite a mensagem que deseja adicionar:" ColorYellow " (máximo 200 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
     if(fgets(text, sizeof(text), stdin)){
         if(!strrchr(text, '\n')){
@@ -423,7 +537,8 @@ void addmessage(){
     if(strlen(text) > 41)
         formattext();        
 
-    
+    system("clear || cls");
+
     if(work[currentwork].messagepos <= 20){
         strncpy(work[currentwork].message[work[currentwork].messagepos].text, text, 201);
         strncpy(work[currentwork].message[work[currentwork].messagepos].author, account[loggedaccount].name, 21);
@@ -444,12 +559,14 @@ void removemessage(){
 
     getchoice();
 
-    if(choice - 1 >= 0 && choice <= work[currentwork].messagepos){
-        for(i = choice - 1; i < work[currentwork].messagepos; i++){
+    system("clear || cls");
+
+    if((choice - 1) >= 0 && (choice -1) < work[currentwork].messagepos){
+        for(i = (choice - 1); i < work[currentwork].messagepos; i++){
             work[currentwork].message[i] = work[currentwork].message[i+1];
         }
         work[currentwork].messagepos--;
-        printf(ColorGreen "\nMensagem removida com sucesso!" ResetColor);
+        printf(ColorGreen "Mensagem removida com sucesso!\n" ResetColor);
     }
     else
         printf(ColorRed "Não foi possível localizar esta mensagem.\n" ResetColor);
@@ -521,12 +638,7 @@ void engenheiro(){
                 break;
 
             case 2:
-                if(currentwork > -1){
-
-                }
-                else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
-                }
+                manageworksrequest();
                 break;
 
             case 3:
@@ -534,7 +646,7 @@ void engenheiro(){
 
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
 
@@ -543,7 +655,7 @@ void engenheiro(){
 
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
 
@@ -552,7 +664,7 @@ void engenheiro(){
 
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
             
@@ -561,7 +673,7 @@ void engenheiro(){
                     messages();
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
             
@@ -607,7 +719,7 @@ void mestredeobra(){
 
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
             
@@ -616,7 +728,7 @@ void mestredeobra(){
 
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
 
@@ -625,7 +737,7 @@ void mestredeobra(){
 
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
 
@@ -634,7 +746,7 @@ void mestredeobra(){
 
                 }
                 else{
-                    printf(ColorYellow "\nVocê ainda não escolheu uma Obra!" ResetColor);
+                    printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
             
