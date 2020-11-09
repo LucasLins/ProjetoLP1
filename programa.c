@@ -24,13 +24,15 @@ void removemessage(void);
 void requestwork(void);
 void viewworksrequest(void);
 void manageworksrequest(void);
-
+void requestmaterial(void);
+void viewmaterialrequest(void);
+void addprice(void);
+void buymaterial(void);
 
 //// Login
 void home(void);
 void login(void);
 void authlogin(void);
-
 
 //// Other
 void clearinput(void);
@@ -55,7 +57,6 @@ int accountpos = 1;
 //// Messages
 char text[201];
 
-
 // Structs
 //// Accounts
 struct accounts{
@@ -72,6 +73,15 @@ struct messages{
     char text[201];
 };
 
+//// Materials
+struct materials{
+    char matname[21];
+    char quantity[21];
+    char forn1[21], forn2[21], forn3[21], finalforn[21];
+    float price, price2, price3, finalprice;
+    int status; // 0 = Solicitado | 1 = Aguardando Compra | 2 = Enviado | 3 = Entregue
+};
+
 //// Works
 struct worksrequest{
     char workname[21];
@@ -81,11 +91,10 @@ struct worksrequest{
 struct works{
     char workname[21];
     char workdescription[51];
-    float totalmaterials;
-    float totalemployees;
-
     int messagepos;
+    int matpos;
     struct messages message[20];
+    struct materials material[100];
 }work[5];
 
 // Main menu
@@ -122,13 +131,13 @@ int main(){
 
 //General
 void getchoice(){
-    if(fgets(choicestr, 2, stdin)){
+    if(fgets(choicestr, 5, stdin)){
             if(!strrchr(choicestr, '\n')){
             clearinput();
             }
         }
 
-    choice = atoi(choicestr);
+    choice = strtol(choicestr, NULL, 10);
 }
 
 void clearinput(){
@@ -252,7 +261,7 @@ void login(){
 
             if(type == -1){
                 system("cls || clear");
-                printf(ColorRed "Nome de usuário ou senha incorreto!\n" ResetColor);
+                printf(ColorRed "Nome de usuário ou senha incorreto!\n\n" ResetColor);
                 attempts++;
             }
             else{
@@ -328,7 +337,7 @@ void addaccount(){
     printf("\nDigite o tipo (cargo) da conta:" ColorYellow "\n(1 = Gestor UNIESP | 2 = Engenheiro | 3 = Mestre de Obra | 4 = Fornecedor)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
 
-    if(fgets(choicestr, 2, stdin)){
+    if(fgets(choicestr, 5, stdin)){
         if(!strrchr(choicestr, '\n')){
             clearinput();
         }
@@ -336,8 +345,8 @@ void addaccount(){
 
     system("clear || cls");
 
-    if(atoi(choicestr) > 0 && atoi(choicestr) <= 4){
-        account[accountpos].type = atoi(choicestr);
+    if(strtol(choicestr, NULL, 10) > 0 && strtol(choicestr, NULL, 10) <= 4){
+        account[accountpos].type = strtol(choicestr, NULL, 10);
         printf(ColorGreen "Conta adicionada com sucesso!\n" ResetColor);
         accountpos++;
     }
@@ -390,7 +399,7 @@ void requestwork(){
     }
     workrequest[workrequestpos].workname[strlen(workrequest[workrequestpos].workname) -1] = '\0'; // Remove o \n do fim da string para melhor exibição desta variável.
 
-    printf("Digite a descrição da obra: " ColorYellow "(máximo 50 caracteres!)" ResetColor);
+    printf("\nDigite a descrição da obra: " ColorYellow "(máximo 50 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
 
     if(fgets(workrequest[workrequestpos].workdescription, 51, stdin)){
@@ -444,7 +453,10 @@ void gestor(){
                 break;
 
             case 2:
-                requestwork();
+                if(workrequestpos <= 5)
+                    requestwork();
+                else 
+                    printf(ColorRed "Há muitas solicitações no momento, tente novamente mais tarde.\n" ResetColor);
                 break;
 
             case 3:
@@ -481,6 +493,72 @@ void gestor(){
 }
 
 // Área do Engenheiro
+void buymaterial(){
+    int i;
+    int j;
+    printf(BColorWhite "             Comprar material                   \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+
+    for(i = 0; i < work[currentwork].matpos; i++){
+        if(work[currentwork].material[i].status == 1){
+            printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, "Aguardando compra\n");
+            printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        }
+    }
+
+    printf("\nDigite o ID do material:");
+    printf(ColorGreen "\n-> " ResetColor);
+    getchoice();
+    i = choice - 1;
+
+    system("clear || cls");
+
+    if(i >= 0 && i < work[currentwork].matpos){
+        printf(BColorWhite "                Material escolhido              \n" ResetColor);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+
+        printf(BColorWhite "                  Fornecedores                  \n" ResetColor);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        printf(BColorWhite "Número: " ResetColor "%d\n" BColorWhite "Fornecedor:" ResetColor " %s" BColorWhite "Preço:" ResetColor " %.2f\n", 1, work[currentwork].material[i].forn1, work[currentwork].material[i].price);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        printf(BColorWhite "Número: " ResetColor "%d\n" BColorWhite "Fornecedor:" ResetColor " %s" BColorWhite "Preço:" ResetColor " %.2f\n", 2, work[currentwork].material[i].forn2, work[currentwork].material[i].price2);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        printf(BColorWhite "Número: " ResetColor "%d\n" BColorWhite "Fornecedor:" ResetColor " %s" BColorWhite "Preço:" ResetColor " %.2f\n", 3, work[currentwork].material[i].forn3, work[currentwork].material[i].price3);
+
+        printf("\nDigite o número do fornecedor que deseja realizar a compra:");
+        printf(ColorGreen "\n-> " ResetColor);
+        getchoice();
+        j = choice;
+
+        system("clear || cls");
+
+        if(j == 1){
+            strncpy(work[currentwork].material[i].finalforn, work[currentwork].material[i].forn1, 21);
+            work[currentwork].material[i].finalprice = work[currentwork].material[i].price;
+            work[currentwork].material[i].status = 2;
+            printf(ColorGreen "Compra realizada com sucesso!\n" ResetColor);
+        }
+        else if(j == 2){
+            strncpy(work[currentwork].material[i].finalforn, work[currentwork].material[i].forn2, 21);
+            work[currentwork].material[i].finalprice = work[currentwork].material[i].price2;
+            work[currentwork].material[i].status = 2;
+            printf(ColorGreen "Compra realizada com sucesso!\n" ResetColor);
+        }
+        else if(j == 3){
+            strncpy(work[currentwork].material[i].finalforn, work[currentwork].material[i].forn3, 21);
+            work[currentwork].material[i].finalprice = work[currentwork].material[i].price3;
+            work[currentwork].material[i].status = 2;
+            printf(ColorGreen "Compra realizada com sucesso!\n" ResetColor);
+        }
+        else 
+            printf(ColorRed "Fornecedor escolhido não existe!\n" ResetColor);
+    }
+    else 
+        printf(ColorRed "Material escolhido não existe!\n" ResetColor);
+}
+
 void viewworksrequest(){
     int i;
     printf(BColorWhite "             Solicitações de obra               \n" ResetColor);
@@ -546,7 +624,7 @@ void addmessage(){
         printf(ColorGreen "Mensagem adicionada com sucesso!\n" ResetColor);
     }
     else
-        printf(ColorRed "O histórico de mensagens está cheio. Apague mensagens e tente novamente." ResetColor);
+        printf(ColorRed "O histórico de mensagens está cheio. Apague mensagens e tente novamente.\n" ResetColor);
 }
 
 void removemessage(){
@@ -638,7 +716,10 @@ void engenheiro(){
                 break;
 
             case 2:
-                manageworksrequest();
+                if(workpos <= 5)
+                    manageworksrequest();
+                else 
+                    printf(ColorRed "Há muitas obras em andamento, aguarde a conclusão de outras obras.\n" ResetColor);
                 break;
 
             case 3:
@@ -661,7 +742,10 @@ void engenheiro(){
 
             case 5:
                 if(currentwork > -1){
-
+                    if(work[currentwork].matpos > 0)
+                        buymaterial();
+                    else 
+                        printf(ColorYellow "Não há materiais para comprar\n" ResetColor);
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
@@ -690,6 +774,34 @@ void engenheiro(){
 }
 
 // Área do Mestre de Obras
+void requestmaterial(){
+    printf(BColorWhite "               Solicitar Material               \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    printf("\nDigite o nome do material:");
+    printf(ColorGreen "\n-> " ResetColor);
+    if(fgets(work[currentwork].material[work[currentwork].matpos].matname, 21, stdin)){
+        if(!strrchr(work[currentwork].material[work[currentwork].matpos].matname, '\n')){
+            clearinput();
+        }
+    }
+
+    printf("\nDigite a quantidade do material:" ColorYellow " (Exemplo: 100kg | 10L)" ResetColor);
+    printf(ColorGreen "\n-> " ResetColor);
+    if(fgets(work[currentwork].material[work[currentwork].matpos].quantity, 21, stdin)){
+        if(!strrchr(work[currentwork].material[work[currentwork].matpos].quantity, '\n')){
+            clearinput();
+        }
+    }
+
+    work[currentwork].material[work[currentwork].matpos].status = 0;
+    work[currentwork].matpos++;
+
+    system("clear || cls");
+
+    printf(ColorGreen "Material solicitado com sucesso!\n" ResetColor);
+
+}
+
 void mestredeobra(){
 
     do{
@@ -716,7 +828,10 @@ void mestredeobra(){
 
             case 2:
                 if(currentwork > -1){
-
+                    if(work[currentwork].matpos <= 100)
+                        requestmaterial();
+                    else
+                        printf(ColorRed "Lista de materiais está cheia, entre em contato com o Administrador.\n" ResetColor);
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
@@ -763,6 +878,127 @@ void mestredeobra(){
 }
 
 // Área do Fornecedor
+void viewmaterialrequest(){
+    int i, j;
+    printf(BColorWhite "           Solicitações de Materiais            \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+
+    for(i = 0; i < workpos; i++){
+        for(j = 0; j < work[i].matpos; j++){
+            if(work[i].material[j].status == 0)
+                printf(BColorWhite "\nMaterial:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", work[i].material[j].matname, work[i].material[j].quantity, "Solicitado\n");
+            else if(work[i].material[j].status == 1)
+                printf(BColorWhite "\nMaterial:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", work[i].material[j].matname, work[i].material[j].quantity, "Enviado\n");
+            else if(work[i].material[j].status == 2)
+                printf(BColorWhite "\nMaterial:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", work[i].material[j].matname, work[i].material[j].quantity, "Entregue\n");      
+            printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        }
+        if(work[i].matpos == 0){
+            system("clear || cls");
+            printf(ColorYellow "Não há solicitações de materiais para exibir\n" ResetColor);
+        }
+    }
+}
+
+void addprice(){
+    int i, j;
+    char pricestr[20];
+    float price;
+
+    printf(BColorWhite "       Adicionar valor de Fornecedores          \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    for(i = 0; i < workpos; i++){
+        for(j = 0; j < work[i].matpos; j++){
+            if(work[i].material[j].status == 0)
+                printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, "Solicitado\n");
+        }
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    }
+
+    printf("\nDigite o número da obra:");
+    printf(ColorGreen "\n-> " ResetColor);
+    getchoice();
+    i = choice - 1;
+
+    printf("\nDigite o ID:");
+    printf(ColorGreen "\n-> " ResetColor);
+    getchoice();
+    j = choice - 1;
+
+    system("clear || cls");
+
+    if(i >= 0 && i < workpos && j >= 0 && j < work[i].matpos){
+        printf(BColorWhite "                Material escolhido              \n" ResetColor);
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, "Solicitado\n");
+        printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+
+        printf("\nDigite o nome do Fornecedor 1:");
+        printf(ColorGreen "\n-> " ResetColor);
+        if(fgets(work[i].material[j].forn1, 21, stdin)){
+            if(!strrchr(work[i].material[j].forn1, '\n')){
+                clearinput();
+            }
+        }
+
+        printf("\nDigite o preço do Fornecedor 1:");
+        printf(ColorGreen "\n-> " ResetColor);
+        if(fgets(pricestr, 20, stdin)){
+            if(!strrchr(pricestr, '\n')){
+                clearinput();
+            }
+        }
+        price = strtof(pricestr, NULL);
+        work[i].material[j].price = price;
+
+        printf("\nDigite o nome do Fornecedor 2:");
+        printf(ColorGreen "\n-> " ResetColor);
+        if(fgets(work[i].material[j].forn2, 21, stdin)){
+            if(!strrchr(work[i].material[j].forn2, '\n')){
+                clearinput();
+            }
+        }
+
+        printf("\nDigite o preço do Fornecedor 2:");
+        printf(ColorGreen "\n-> " ResetColor);
+        if(fgets(pricestr, 20, stdin)){
+            if(!strrchr(pricestr, '\n')){
+                clearinput();
+            }
+        }
+        price = strtof(pricestr, NULL);
+        work[i].material[j].price2 = price;
+
+        printf("\nDigite o nome do Fornecedor 3:");
+        printf(ColorGreen "\n-> " ResetColor);
+        if(fgets(work[i].material[j].forn3, 21, stdin)){
+            if(!strrchr(work[i].material[j].forn3, '\n')){
+                clearinput();
+            }
+        }
+
+        printf("\nDigite o preço do Fornecedor 3:");
+        printf(ColorGreen "\n-> " ResetColor);
+        if(fgets(pricestr, 20, stdin)){
+            if(!strrchr(pricestr, '\n')){
+                clearinput();
+            }
+        }
+        price = strtof(pricestr, NULL);
+        work[i].material[j].price3 = price;
+
+        work[i].material[j].status = 1;
+
+        system("clear || cls");
+
+        printf(ColorGreen "Preços adicionados com sucesso!\n" ResetColor);
+    }
+    else{
+        system("clear || cls");
+        printf(ColorRed "Número da obra ou ID não encontrado!\n" ResetColor);
+    }
+}
+
 void fornecedor(){
 
     do{
@@ -781,9 +1017,14 @@ void fornecedor(){
 
         switch(choice){
             case 1:
+                viewmaterialrequest();
+                printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                getchar();
+                system("clear || cls");
                 break;
 
             case 2:
+                addprice();
                 break;
 
             case 3:
