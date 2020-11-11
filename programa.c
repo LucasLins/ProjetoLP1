@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
+#include <time.h>
 #include "colors.h"
 
 // Functions
@@ -72,6 +74,7 @@ struct accounts{
 struct messages{
     char author[21];
     char text[201];
+    int day, month, year;
 };
 
 //// Materials
@@ -81,6 +84,7 @@ struct materials{
     char forn1[21], forn2[21], forn3[21], finalforn[21];
     float price, price2, price3, finalprice;
     int status; // 0 = Solicitado | 1 = Aguardando Compra | 2 = Enviado | 3 = Entregue
+    int day, month, year;
 };
 
 //// Works
@@ -98,8 +102,13 @@ struct works{
     struct materials material[100];
 }work[5];
 
+//// Date
+time_t date;
+struct tm * dateinfo;
+
 // Main menu
 int main(){
+    
 
     do{
         printf(BColorCyan "\n########################" ResetColor);
@@ -131,6 +140,11 @@ int main(){
 }
 
 //General
+void getdate(){
+    time(&date);
+    dateinfo = localtime(&date);
+}
+
 void getchoice(){
     if(fgets(choicestr, 5, stdin)){
             if(!strrchr(choicestr, '\n')){
@@ -421,7 +435,7 @@ void viewmessage(){
     printf(BColorWhite "                     Mensagens                  \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     for(i = 0; i < work[currentwork].messagepos; i++){
-        printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Autor: " ResetColor "%s\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), work[currentwork].message[i].author, work[currentwork].message[i].text);
+        printf(BColorWhite "\nNúmero: " ResetColor "%d" BColorWhite " Autor: " ResetColor "%s" BColorWhite " Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Mensagem: " ResetColor "%s", (i + 1), work[currentwork].message[i].author, work[currentwork].message[i].day, work[currentwork].message[i].month, work[currentwork].message[i].year, work[currentwork].message[i].text);
         printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     }
     if(work[currentwork].messagepos == 0){
@@ -502,7 +516,7 @@ void buymaterial(){
 
     for(i = 0; i < work[currentwork].matpos; i++){
         if(work[currentwork].material[i].status == 1){
-            printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, "Aguardando compra\n");
+            printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year, "Aguardando compra\n");
             printf(ColorCyan "--------------------------------------------------\n" ResetColor);
         }
     }
@@ -517,7 +531,7 @@ void buymaterial(){
     if(i >= 0 && i < work[currentwork].matpos && work[currentwork].material[i].status == 1){
         printf(BColorWhite "                Material escolhido              \n" ResetColor);
         printf(ColorCyan "--------------------------------------------------\n" ResetColor);
-        printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity);
+        printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year);
         printf(ColorCyan "--------------------------------------------------\n" ResetColor);
 
         printf(BColorWhite "                  Fornecedores                  \n" ResetColor);
@@ -621,6 +635,10 @@ void addmessage(){
     if(work[currentwork].messagepos <= 20){
         strncpy(work[currentwork].message[work[currentwork].messagepos].text, text, 201);
         strncpy(work[currentwork].message[work[currentwork].messagepos].author, account[loggedaccount].name, 21);
+        getdate();
+        work[currentwork].message[work[currentwork].messagepos].day = dateinfo->tm_mday;
+        work[currentwork].message[work[currentwork].messagepos].month = dateinfo->tm_mon + 1;
+        work[currentwork].message[work[currentwork].messagepos].year = dateinfo->tm_year + 1900;
         work[currentwork].messagepos++;
         printf(ColorGreen "Mensagem adicionada com sucesso!\n" ResetColor);
     }
@@ -782,7 +800,7 @@ void confirmdelivery(){
 
     for(i = 0; i < work[currentwork].matpos; i++){
         if(work[currentwork].material[i].status == 2){
-            printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, "Enviado\n");
+            printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year, "Enviado\n");
             printf(ColorCyan "--------------------------------------------------\n" ResetColor);
         }
     }
@@ -805,9 +823,9 @@ void confirmdelivery(){
 void requestmaterial(){
     printf(BColorWhite "               Solicitar Material               \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
-    printf("\nDigite o nome do material:");
+    printf("\nDigite o nome do material:" ColorYellow " (máximo 50 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
-    if(fgets(work[currentwork].material[work[currentwork].matpos].matname, 21, stdin)){
+    if(fgets(work[currentwork].material[work[currentwork].matpos].matname, 51, stdin)){
         if(!strrchr(work[currentwork].material[work[currentwork].matpos].matname, '\n')){
             clearinput();
         }
@@ -820,8 +838,11 @@ void requestmaterial(){
             clearinput();
         }
     }
-
+    getdate();
     work[currentwork].material[work[currentwork].matpos].status = 0;
+    work[currentwork].material[work[currentwork].matpos].day = dateinfo->tm_mday;
+    work[currentwork].material[work[currentwork].matpos].month = dateinfo->tm_mon + 1;
+    work[currentwork].material[work[currentwork].matpos].year = dateinfo->tm_year + 1900;
     work[currentwork].matpos++;
 
     system("clear || cls");
@@ -917,16 +938,9 @@ void viewmaterialrequest(){
     for(i = 0; i < workpos; i++){
         for(j = 0; j < work[i].matpos; j++){
             if(work[i].material[j].status == 0){
-                printf(BColorWhite "\nMaterial:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", work[i].material[j].matname, work[i].material[j].quantity, "Solicitado\n");
-                printf(ColorCyan "--------------------------------------------------\n" ResetColor);
-            }else if(work[i].material[j].status == 1){
-                printf(BColorWhite "\nMaterial:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", work[i].material[j].matname, work[i].material[j].quantity, "Enviado\n");
-                printf(ColorCyan "--------------------------------------------------\n" ResetColor);
-            }else if(work[i].material[j].status == 2){
-                printf(BColorWhite "\nMaterial:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", work[i].material[j].matname, work[i].material[j].quantity, "Entregue\n");      
+                printf(BColorWhite "\nMaterial:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", work[i].material[j].matname, work[i].material[j].quantity, work[i].material[j].day, work[i].material[j].month, work[i].material[j].year, "Solicitado\n");
                 printf(ColorCyan "--------------------------------------------------\n" ResetColor);
             }
-
         }
         if(work[i].matpos == 0){
             system("clear || cls");
@@ -945,7 +959,7 @@ void addprice(){
     for(i = 0; i < workpos; i++){
         for(j = 0; j < work[i].matpos; j++){
             if(work[i].material[j].status == 0)
-                printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, "Solicitado\n");
+                printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, work[i].material[j].day, work[i].material[j].month, work[i].material[j].year, "Solicitado\n");
         }
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     }
@@ -965,7 +979,7 @@ void addprice(){
     if(i >= 0 && i < workpos && j >= 0 && j < work[i].matpos && work[i].material[j].status == 0){
         printf(BColorWhite "                Material escolhido              \n" ResetColor);
         printf(ColorCyan "--------------------------------------------------\n" ResetColor);
-        printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, "Solicitado\n");
+        printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, work[i].material[j].day, work[i].material[j].month, work[i].material[j].year, "Solicitado\n");
         printf(ColorCyan "--------------------------------------------------\n" ResetColor);
 
         printf("\nDigite o nome do Fornecedor 1:");
