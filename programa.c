@@ -31,6 +31,7 @@ void viewmaterialrequest(void);
 void addprice(void);
 void buymaterial(void);
 void confirmdelivery(void);
+void totalspending(void);
 
 //// Login
 void home(void);
@@ -40,6 +41,7 @@ void authlogin(void);
 //// Other
 void clearinput(void);
 void formattext(void);
+void getdate(void);
 
 // Variables
 //// login
@@ -98,6 +100,7 @@ struct works{
     char workdescription[51];
     int messagepos;
     int matpos;
+    float totalmaterials, totalemployees;
     struct messages message[20];
     struct materials material[100];
 }work[5];
@@ -108,7 +111,7 @@ struct tm * dateinfo;
 
 // Main menu
 int main(){
-    
+    setlocale(LC_ALL, "Portuguese");
 
     do{
         printf(BColorCyan "\n########################" ResetColor);
@@ -401,6 +404,12 @@ void administrador(){
 }
 
 // Área do Gestor UNIESP
+void totalspending(){
+    printf(BColorWhite "               Total de Gastos                  \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    printf(BColorWhite "Obra:" ResetColor " %s\n" BColorWhite "Gasto com materiais:" ResetColor " %.2f R$\n" BColorWhite "Gasto com funcionarios:" ResetColor " %.2f R$\n" BColorWhite "Total de gastos:" ResetColor " %.2f R$\n", work[currentwork].workname, work[currentwork].totalmaterials, work[currentwork].totalemployees, work[currentwork].totalmaterials + work[currentwork].totalemployees);
+}
+
 void requestwork(){
     printf(BColorWhite "              Solicitar nova obra               \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
@@ -476,7 +485,10 @@ void gestor(){
 
             case 3:
                 if(currentwork > -1){
-
+                    totalspending();
+                    printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                    getchar();
+                    system("clear || cls");
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
@@ -553,18 +565,21 @@ void buymaterial(){
             strncpy(work[currentwork].material[i].finalforn, work[currentwork].material[i].forn1, 21);
             work[currentwork].material[i].finalprice = work[currentwork].material[i].price;
             work[currentwork].material[i].status = 2;
+            work[currentwork].totalmaterials += work[currentwork].material[i].finalprice;
             printf(ColorGreen "Compra realizada com sucesso!\n" ResetColor);
         }
         else if(j == 2){
             strncpy(work[currentwork].material[i].finalforn, work[currentwork].material[i].forn2, 21);
             work[currentwork].material[i].finalprice = work[currentwork].material[i].price2;
             work[currentwork].material[i].status = 2;
+            work[currentwork].totalmaterials += work[currentwork].material[i].finalprice;
             printf(ColorGreen "Compra realizada com sucesso!\n" ResetColor);
         }
         else if(j == 3){
             strncpy(work[currentwork].material[i].finalforn, work[currentwork].material[i].forn3, 21);
             work[currentwork].material[i].finalprice = work[currentwork].material[i].price3;
             work[currentwork].material[i].status = 2;
+            work[currentwork].totalmaterials += work[currentwork].material[i].finalprice;
             printf(ColorGreen "Compra realizada com sucesso!\n" ResetColor);
         }
         else 
@@ -752,7 +767,10 @@ void engenheiro(){
 
             case 4:
                 if(currentwork > -1){
-
+                    totalspending();
+                    printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                    getchar();
+                    system("clear || cls");
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
