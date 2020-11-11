@@ -4,44 +4,7 @@
 #include <string.h>
 #include <locale.h>
 #include <time.h>
-#include "colors.h"
-
-// Functions
-//// Menus
-void administrador(void);
-void gestor(void);
-void engenheiro(void);
-void mestredeobra(void);
-void fornecedor(void);
-
-//// Menu options
-void getchoice(void);
-void messages(void);
-void addaccount(void);
-void viewworks(void);
-void getwork(void);
-void addmessage(void);
-void viewmessage(void);
-void removemessage(void);
-void requestwork(void);
-void viewworksrequest(void);
-void manageworksrequest(void);
-void requestmaterial(void);
-void viewmaterialrequest(void);
-void addprice(void);
-void buymaterial(void);
-void confirmdelivery(void);
-void totalspending(void);
-
-//// Login
-void home(void);
-void login(void);
-void authlogin(void);
-
-//// Other
-void clearinput(void);
-void formattext(void);
-void getdate(void);
+#include "header.h"
 
 // Variables
 //// login
