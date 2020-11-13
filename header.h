@@ -27,6 +27,8 @@ void addprice(void);
 void buymaterial(void);
 void confirmdelivery(void);
 void totalspending(void);
+void workhistory(void);
+void viewmaterials(void);
 
 //// Login
 void home(void);

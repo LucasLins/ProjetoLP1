@@ -74,7 +74,7 @@ struct tm * dateinfo;
 
 // Main menu
 int main(){
-    setlocale(LC_ALL, "Portuguese");
+    //setlocale(LC_ALL, "Portuguese");
 
     do{
         printf(BColorCyan "\n########################" ResetColor);
@@ -195,7 +195,7 @@ void authlogin(){
             loggedaccount = i; // current account logged
             i = accountpos; // break loop
         }
-    }
+	}
 }
 
 void login(){
@@ -416,6 +416,74 @@ void viewmessage(){
     }
 }
 
+void viewmaterials(){
+    int i;
+    printf(BColorWhite "                     Materiais                  \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    for(i = 0; i < work[currentwork].matpos; i++){
+        if(work[currentwork].material[i].status == 2){
+            printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Fornecedor:" ResetColor " %s" BColorWhite "Preço:" ResetColor " %.2f R$\n" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].finalforn, work[currentwork].material[i].finalprice, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year, "Enviado\n");
+            printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        }
+        if(work[currentwork].material[i].status == 3){
+            printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Fornecedor:" ResetColor " %s" BColorWhite "Preço:" ResetColor " %.2f R$\n" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].finalforn, work[currentwork].material[i].finalprice, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year, "Entregue\n");
+            printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        }
+    }
+    printf(BColorWhite "Despesa total com materiais: \n" ResetColor "%.2f R$\n", work[currentwork].totalmaterials);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+
+    if(work[currentwork].matpos == 0){
+        system("clear || cls");
+        printf(ColorYellow "Não há mensagens para exibir.\n" ResetColor);
+    }
+}
+
+void workhistory(){
+    do{
+        printf(BColorCyan "\n##################################" ResetColor);
+        printf(BColorCyan "\n#       " BColorWhite "Histórico da obra" BColorCyan "        #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "1 - Histórico de mensagens" BColorCyan "     #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "2 - Histórico de materiais" BColorCyan "     #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "3 - Histórico de funcionários" BColorCyan "  #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "4 - Retornar" BColorCyan "                   #" ResetColor);
+        printf(BColorCyan "\n##################################" ResetColor);
+        printf("\nO que deseja fazer?");
+        printf(ColorGreen "\n-> " ResetColor);
+
+        getchoice();
+        
+        system("cls || clear");
+
+        switch(choice){
+            case 1:
+                viewmessage();
+                printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                getchar();
+                system("clear || cls");
+                break;
+
+            case 2:
+                viewmaterials();
+                printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                getchar();
+                system("clear || cls");
+                break;
+
+            case 3:
+                break;
+
+            case 4:
+                break;
+
+            default:
+                printf(ColorRed "Opção desconhecida, tente novamente.\n");   
+                break;
+        }
+
+    }while(choice != 4);
+}
+
 void gestor(){
 
     do{
@@ -460,10 +528,7 @@ void gestor(){
 
             case 4:
                 if(currentwork > -1){
-                    viewmessage();
-                    printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
-                    getchar();
-                    system("clear || cls");
+                    workhistory();
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
@@ -882,7 +947,10 @@ void mestredeobra(){
 
             case 4:
                 if(currentwork > -1){
-
+                    viewmaterials();
+                    printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                    getchar();
+                    system("clear || cls");
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
@@ -939,10 +1007,11 @@ void addprice(){
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     for(i = 0; i < workpos; i++){
         for(j = 0; j < work[i].matpos; j++){
-            if(work[i].material[j].status == 0)
+            if(work[i].material[j].status == 0){
                 printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, work[i].material[j].day, work[i].material[j].month, work[i].material[j].year, "Solicitado\n");
+                printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+            }
         }
-    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     }
 
     printf("\nDigite o número da obra:");
