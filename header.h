@@ -29,6 +29,9 @@ void confirmdelivery(void);
 void totalspending(void);
 void workhistory(void);
 void viewmaterials(void);
+void requestemployees(void);
+void hireemployees(void);
+void viewemployees(void);
 
 //// Login
 void home(void);
@@ -39,7 +42,8 @@ void authlogin(void);
 void clearinput(void);
 void formattext(void);
 void getdate(void);
-
+int partition(int left, int right);
+void quicksort(int left, int right);
 
 // Text Colors
 //// Relugar
@@ -67,5 +71,61 @@ void getdate(void);
 
 //// Clear color
 #define ResetColor "\e[0m"
+
+// Structs
+//// Accounts
+struct accounts{
+    char username[16];
+    char password[16];
+    char name[21];
+    int type;
+    int status;
+}account[10];
+
+//// Messages
+struct messages{
+    char author[21];
+    char text[201];
+    int day, month, year;
+};
+
+//// Materials
+struct materials{
+    char matname[21];
+    char quantity[21];
+    char forn1[21], forn2[21], forn3[21], finalforn[21];
+    float price, price2, price3, finalprice;
+    int status; // 0 = Solicitado | 1 = Aguardando Compra | 2 = Enviado | 3 = Entregue
+    int day, month, year;
+};
+
+//// Employees
+struct employees{
+    char name[21];
+    char expertise[31];
+    float salary;
+    int hired;
+};
+
+//// Works
+struct worksrequest{
+    char workname[21];
+    char workdescription[51];
+}workrequest[5];
+
+struct works{
+    char workname[21];
+    char workdescription[51];
+    int messagepos, matpos, employeepos;
+    float totalmaterials, totalemployees;
+    struct messages message[20];
+    struct materials material[100];
+    struct employees employee[30], emptemp;
+}work[5];
+
+//// Date
+time_t date;
+struct tm * dateinfo;
+
 
 #endif

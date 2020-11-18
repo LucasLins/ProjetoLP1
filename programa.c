@@ -4,6 +4,7 @@
 #include <string.h>
 #include <locale.h>
 #include <time.h>
+#include <ctype.h>
 #include "header.h"
 
 // Variables
@@ -25,56 +26,9 @@ int accountpos = 1;
 //// Messages
 char text[201];
 
-// Structs
-//// Accounts
-struct accounts{
-    char username[16];
-    char password[16];
-    char name[21];
-    int type;
-    int status;
-}account[10];
-
-//// Messages
-struct messages{
-    char author[21];
-    char text[201];
-    int day, month, year;
-};
-
-//// Materials
-struct materials{
-    char matname[21];
-    char quantity[21];
-    char forn1[21], forn2[21], forn3[21], finalforn[21];
-    float price, price2, price3, finalprice;
-    int status; // 0 = Solicitado | 1 = Aguardando Compra | 2 = Enviado | 3 = Entregue
-    int day, month, year;
-};
-
-//// Works
-struct worksrequest{
-    char workname[21];
-    char workdescription[51];
-}workrequest[5];
-
-struct works{
-    char workname[21];
-    char workdescription[51];
-    int messagepos;
-    int matpos;
-    float totalmaterials, totalemployees;
-    struct messages message[20];
-    struct materials material[100];
-}work[5];
-
-//// Date
-time_t date;
-struct tm * dateinfo;
-
 // Main menu
 int main(){
-    //setlocale(LC_ALL, "Portuguese");
+    setlocale(LC_ALL, "Portuguese");
 
     do{
         printf(BColorCyan "\n########################" ResetColor);
@@ -106,6 +60,38 @@ int main(){
 }
 
 //General
+int partition(int left, int right){
+
+	int pivot = tolower(work[currentwork].employee[right].name[0]);
+	int i = (left-1);
+
+	for (int j = left; j <= right-1; j++){
+		if (tolower(work[currentwork].employee[j].name[0]) < pivot){
+			i++;
+			work[currentwork].emptemp = work[currentwork].employee[i];
+			work[currentwork].employee[i] = work[currentwork].employee[j];
+			work[currentwork].employee[j] = work[currentwork].emptemp;
+		}
+	}
+
+	work[currentwork].emptemp = work[currentwork].employee[i + 1];
+	work[currentwork].employee[i + 1] = work[currentwork].employee[right];
+	work[currentwork].employee[right] = work[currentwork].emptemp;
+	
+	return (i + 1);
+}
+
+void quicksort(int left, int right){ // Ordena a lista de funcionários em ordem alfabética usando o algoritmo QuickSort
+
+	if (left < right){
+		
+		int index = partition(left, right);
+
+		quicksort(left, index - 1);
+		quicksort(index + 1, right);
+	}
+}
+
 void getdate(){
     time(&date);
     dateinfo = localtime(&date);
@@ -370,7 +356,7 @@ void administrador(){
 void totalspending(){
     printf(BColorWhite "               Total de Gastos                  \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
-    printf(BColorWhite "Obra:" ResetColor " %s\n" BColorWhite "Gasto com materiais:" ResetColor " %.2f R$\n" BColorWhite "Gasto com funcionarios:" ResetColor " %.2f R$\n" BColorWhite "Total de gastos:" ResetColor " %.2f R$\n", work[currentwork].workname, work[currentwork].totalmaterials, work[currentwork].totalemployees, work[currentwork].totalmaterials + work[currentwork].totalemployees);
+    printf(BColorWhite "Obra:" ResetColor " %s\n" BColorWhite "Gasto com materiais:" ResetColor " %.2f R$\n" BColorWhite "Gasto com funcionários:" ResetColor " %.2f R$\n" BColorWhite "Total de gastos:" ResetColor " %.2f R$\n", work[currentwork].workname, work[currentwork].totalmaterials, work[currentwork].totalemployees, work[currentwork].totalmaterials + work[currentwork].totalemployees);
 }
 
 void requestwork(){
@@ -400,6 +386,25 @@ void requestwork(){
     printf(ColorGreen "Obra solicitada com sucesso!\n" ResetColor);
 
     workrequestpos++;
+}
+
+void viewemployees(){
+    int i;
+    printf(BColorWhite "            Funcionários Contratados            \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    for(i = 0; i < work[currentwork].employeepos; i++){
+        if(work[currentwork].employee[i].hired == 1){
+            printf(BColorWhite "Nome: " ResetColor "%s" BColorWhite "Especialidade: " ResetColor "%s" BColorWhite "Salário: " ResetColor "%.2f R$\n", work[currentwork].employee[i].name, work[currentwork].employee[i].expertise, work[currentwork].employee[i].salary);
+            printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        }
+    }
+    printf(BColorWhite "Despesa total com funcionários: \n" ResetColor "%.2f R$\n", work[currentwork].totalemployees);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+
+    if(work[currentwork].employeepos == 0){
+        system("clear || cls");
+        printf(ColorYellow "Não há funcionários para exibir.\n" ResetColor);
+    }
 }
 
 void viewmessage(){
@@ -435,7 +440,7 @@ void viewmaterials(){
 
     if(work[currentwork].matpos == 0){
         system("clear || cls");
-        printf(ColorYellow "Não há mensagens para exibir.\n" ResetColor);
+        printf(ColorYellow "Não há materiais para exibir.\n" ResetColor);
     }
 }
 
@@ -471,6 +476,10 @@ void workhistory(){
                 break;
 
             case 3:
+                viewemployees();
+                printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
+                getchar();
+                system("clear || cls");
                 break;
 
             case 4:
@@ -548,6 +557,58 @@ void gestor(){
 }
 
 // Área do Engenheiro
+void hireemployees(){
+    int i;
+    char salarystr[20];
+
+    printf(BColorWhite "            Funcionários solicitados            \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    for(i = 0; i < work[currentwork].employeepos; i++){
+        if(work[currentwork].employee[i].hired == 0){
+            printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Especialidade: " ResetColor "%s\n", (i + 1), work[currentwork].employee[i].expertise);
+            printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+        }
+    }
+    if(work[currentwork].employeepos == 0)
+        printf(ColorYellow "Não há solicitações para exibir.\n" ResetColor);
+
+    printf("\nDigite o número da especialidade do funcionário que deseja contratar:");
+    printf(ColorGreen "\n-> " ResetColor);
+    getchoice();
+    i = choice - 1;
+
+    if(i >= 0 && i < work[currentwork].employeepos && work[currentwork].employee[i].hired == 0){
+        printf("\nDigite o nome do funcionário:" ColorYellow " (máximo 20 caracteres!)" ResetColor);
+        printf(ColorGreen "\n-> " ResetColor);
+        if(fgets(work[currentwork].employee[i].name, 21, stdin)){
+            if(!strrchr(work[currentwork].employee[i].name, '\n')){
+                clearinput();
+            }
+        }
+
+        printf("\nDigite o salário do funcionário:");
+        printf(ColorGreen "\n-> " ResetColor);
+        if(fgets(salarystr, 20, stdin)){
+            if(!strrchr(salarystr, '\n')){
+                clearinput();
+            }
+        }
+        work[currentwork].employee[i].salary = strtof(salarystr, NULL);
+        work[currentwork].totalemployees += work[currentwork].employee[i].salary;
+        work[currentwork].employee[i].hired = 1;
+
+        quicksort(0, work[currentwork].employeepos-1); // Ordena a array dos funcionarios sempre que adicionar um novo
+
+        system("clear || cls");
+
+        printf(ColorGreen "Funcionário contratado com sucesso!\n" ResetColor);
+    }
+    else{
+        system("clear || cls");
+        printf(ColorRed "Número digitado não existe!\n" ResetColor);
+    }
+}
+
 void buymaterial(){
     int i;
     int j;
@@ -786,7 +847,7 @@ void engenheiro(){
 
             case 3:
                 if(currentwork > -1){
-
+                    hireemployees();
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
@@ -839,6 +900,23 @@ void engenheiro(){
 }
 
 // Área do Mestre de Obras
+void requestemployees(){
+    printf(BColorWhite "             Solicitar Funcionário              \n" ResetColor);
+    printf(ColorCyan "--------------------------------------------------\n" ResetColor);
+    printf("\nDigite a especialidade do funcionário que deseja solicitar:" ColorYellow " (máximo 30 caracteres!)" ResetColor);
+    printf(ColorGreen "\n-> " ResetColor);
+    if(fgets(work[currentwork].employee[work[currentwork].employeepos].expertise, 31, stdin)){
+        if(!strrchr(work[currentwork].employee[work[currentwork].employeepos].expertise, '\n')){
+            clearinput();
+        }
+    }
+    work[currentwork].employeepos++;
+
+    system("clear || cls");
+
+    printf(ColorGreen "Funcionário solicitado ao engenheiro com sucesso!\n" ResetColor);
+}
+
 void confirmdelivery(){
     int i;
     printf(BColorWhite "             Confirmar Recebimento              \n" ResetColor);
@@ -959,7 +1037,10 @@ void mestredeobra(){
 
             case 5:
                 if(currentwork > -1){
-
+                    if(work[currentwork].employeepos <= 30)
+                        requestemployees();
+                    else 
+                        printf(ColorRed "A lista de funcionários está cheia!\n" ResetColor);
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
