@@ -28,7 +28,7 @@ char text[201];
 
 // Main menu
 int main(){
-    setlocale(LC_ALL, "Portuguese");
+    //setlocale(LC_ALL, "Portuguese");
 
     do{
         printf(BColorCyan "\n########################" ResetColor);
@@ -205,7 +205,7 @@ void login(){
         else{
             printf(BColorWhite "                      Login                     \n" ResetColor);
             printf(ColorCyan "--------------------------------------------------\n" ResetColor);
-            printf("\nDigite o usuário:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
+            printf("\nDigite o usuário:" ColorYellow " (máximo 15 caracteres!)" ResetColor);
             printf(ColorGreen "\n-> " ResetColor);
             
             if(fgets(username, sizeof(username), stdin)){
@@ -214,7 +214,7 @@ void login(){
                 }
             }
 
-            printf("\nDigite a senha:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
+            printf("\nDigite a senha:" ColorYellow " (máximo 15 caracteres!)" ResetColor);
             printf(ColorGreen "\n-> " FGBGWhite);
 
             if(fgets(password, sizeof(password), stdin)){
@@ -273,7 +273,7 @@ void home(){
 void addaccount(){
     printf(BColorWhite "                Criar nova conta                \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
-    printf("\nDigite o usuário:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
+    printf("\nDigite o usuário:" ColorYellow " (máximo 15 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
     
     if(fgets(account[accountpos].username, 16, stdin)){
@@ -282,7 +282,7 @@ void addaccount(){
         }
     }
 
-    printf("\nDigite a senha:" ColorYellow "(máximo 15 caracteres!)" ResetColor);
+    printf("\nDigite a senha:" ColorYellow " (máximo 15 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
 
     if(fgets(account[accountpos].password, 16, stdin)){
@@ -291,7 +291,7 @@ void addaccount(){
         }
     }
 
-    printf("\nDigite o nome do funcionário:" ColorYellow "(máximo 20 caracteres!)" ResetColor);
+    printf("\nDigite o nome do funcionário:" ColorYellow " (máximo 20 caracteres!)" ResetColor);
     printf(ColorGreen "\n-> " ResetColor);
     
     if(fgets(account[accountpos].name, 21, stdin)){
@@ -318,7 +318,7 @@ void addaccount(){
         accountpos++;
     }
     else
-        printf(ColorRed "Número inválido");
+        printf(ColorRed "Tipo (cargo) inválido!\n");
 }
 
 void administrador(){
@@ -558,26 +558,27 @@ void gestor(){
 
 // Área do Engenheiro
 void hireemployees(){
-    int i;
+    int i, found = 0;
     char salarystr[20];
 
     printf(BColorWhite "            Funcionários solicitados            \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     for(i = 0; i < work[currentwork].employeepos; i++){
         if(work[currentwork].employee[i].hired == 0){
+            found++;
             printf(BColorWhite "\nNúmero: " ResetColor "%d - " BColorWhite "Especialidade: " ResetColor "%s\n", (i + 1), work[currentwork].employee[i].expertise);
             printf(ColorCyan "--------------------------------------------------\n" ResetColor);
         }
     }
-    if(work[currentwork].employeepos == 0)
-        printf(ColorYellow "Não há solicitações para exibir.\n" ResetColor);
 
-    printf("\nDigite o número da especialidade do funcionário que deseja contratar:");
-    printf(ColorGreen "\n-> " ResetColor);
-    getchoice();
-    i = choice - 1;
+    if(found > 0){
+        printf("\nDigite o número da especialidade do funcionário que deseja contratar:");
+        printf(ColorGreen "\n-> " ResetColor);
+        getchoice();
+        i = choice - 1;
+    }
 
-    if(i >= 0 && i < work[currentwork].employeepos && work[currentwork].employee[i].hired == 0){
+    if(i >= 0 && i < work[currentwork].employeepos && found > 0){ // Verifica se existe algum dado dentro da opção selecionada
         printf("\nDigite o nome do funcionário:" ColorYellow " (máximo 20 caracteres!)" ResetColor);
         printf(ColorGreen "\n-> " ResetColor);
         if(fgets(work[currentwork].employee[i].name, 21, stdin)){
@@ -603,6 +604,10 @@ void hireemployees(){
 
         printf(ColorGreen "Funcionário contratado com sucesso!\n" ResetColor);
     }
+    else if(found == 0){
+        system("clear || cls");
+        printf(ColorYellow "Não há funcionários para contratar.\n" ResetColor);
+    }
     else{
         system("clear || cls");
         printf(ColorRed "Número digitado não existe!\n" ResetColor);
@@ -610,26 +615,29 @@ void hireemployees(){
 }
 
 void buymaterial(){
-    int i;
+    int i, found = 0;
     int j;
-    printf(BColorWhite "             Comprar material                   \n" ResetColor);
+    printf(BColorWhite "                Comprar material                \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
 
     for(i = 0; i < work[currentwork].matpos; i++){
         if(work[currentwork].material[i].status == 1){
+            found++;
             printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year, "Aguardando compra\n");
             printf(ColorCyan "--------------------------------------------------\n" ResetColor);
         }
     }
 
-    printf("\nDigite o ID do material:");
-    printf(ColorGreen "\n-> " ResetColor);
-    getchoice();
-    i = choice - 1;
+    if(found > 0){
+        printf("\nDigite o ID do material:");
+        printf(ColorGreen "\n-> " ResetColor);
+        getchoice();
+        i = choice - 1;
+    }
 
     system("clear || cls");
 
-    if(i >= 0 && i < work[currentwork].matpos && work[currentwork].material[i].status == 1){
+    if(i >= 0 && i < work[currentwork].matpos && work[currentwork].material[i].status == 1 && found > 0){
         printf(BColorWhite "                Material escolhido              \n" ResetColor);
         printf(ColorCyan "--------------------------------------------------\n" ResetColor);
         printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year);
@@ -674,6 +682,8 @@ void buymaterial(){
         else 
             printf(ColorRed "Fornecedor escolhido não existe!\n" ResetColor);
     }
+    else if(found == 0)
+        printf(ColorYellow "Não há materiais para comprar!\n" ResetColor);
     else 
         printf(ColorRed "Material escolhido não existe!\n" ResetColor);
 }
@@ -918,27 +928,33 @@ void requestemployees(){
 }
 
 void confirmdelivery(){
-    int i;
+    int i, found = 0;
     printf(BColorWhite "             Confirmar Recebimento              \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
 
     for(i = 0; i < work[currentwork].matpos; i++){
         if(work[currentwork].material[i].status == 2){
+            found++;
             printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year, "Enviado\n");
             printf(ColorCyan "--------------------------------------------------\n" ResetColor);
         }
     }
 
-    printf("\nDigite o ID do material recebido:");
-    printf(ColorGreen "\n-> " ResetColor);
-    getchoice();
-    i = choice - 1;
+    if(found > 0){
+        printf("\nDigite o ID do material recebido:");
+        printf(ColorGreen "\n-> " ResetColor);
+        getchoice();
+        i = choice - 1;
+    }
 
     system("clear || cls");
 
-    if(i >= 0 && i <= work[currentwork].matpos && work[currentwork].material[i].status == 2){
+    if(i >= 0 && i <= work[currentwork].matpos && work[currentwork].material[i].status == 2 && found > 0){
         work[currentwork].material[i].status = 3;
         printf(ColorGreen "Recebimento confirmado com sucesso!\n" ResetColor);
+    }
+    else if(found == 0){
+        printf(ColorYellow "Não há materiais para confirmar recebimento!\n" ResetColor);
     }
     else 
         printf(ColorRed "Material escolhido não existe!\n" ResetColor);
@@ -1080,34 +1096,38 @@ void viewmaterialrequest(){
 }
 
 void addprice(){
-    int i, j;
+    int i, j, found = 0;
     char pricestr[20];
     float price;
 
-    printf(BColorWhite "       Adicionar valor de Fornecedores          \n" ResetColor);
+    printf(BColorWhite "         Adicionar valor de Fornecedores        \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
     for(i = 0; i < workpos; i++){
         for(j = 0; j < work[i].matpos; j++){
             if(work[i].material[j].status == 0){
+                found++;
                 printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, work[i].material[j].day, work[i].material[j].month, work[i].material[j].year, "Solicitado\n");
                 printf(ColorCyan "--------------------------------------------------\n" ResetColor);
             }
         }
     }
 
-    printf("\nDigite o número da obra:");
-    printf(ColorGreen "\n-> " ResetColor);
-    getchoice();
-    i = choice - 1;
+    if(found > 0){
+        printf("\nDigite o número da obra:");
+        printf(ColorGreen "\n-> " ResetColor);
+        getchoice();
+        i = choice - 1;
+    
 
-    printf("\nDigite o ID:");
-    printf(ColorGreen "\n-> " ResetColor);
-    getchoice();
-    j = choice - 1;
+        printf("\nDigite o ID:");
+        printf(ColorGreen "\n-> " ResetColor);
+        getchoice();
+        j = choice - 1;
+    }
 
     system("clear || cls");
 
-    if(i >= 0 && i < workpos && j >= 0 && j < work[i].matpos && work[i].material[j].status == 0){
+    if(i >= 0 && i < workpos && j >= 0 && j < work[i].matpos && work[i].material[j].status == 0 && found > 0){
         printf(BColorWhite "                Material escolhido              \n" ResetColor);
         printf(ColorCyan "--------------------------------------------------\n" ResetColor);
         printf(BColorWhite "\nObra:" ResetColor "%d | " BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", i + 1, j + 1, work[i].material[j].matname, work[i].material[j].quantity, work[i].material[j].day, work[i].material[j].month, work[i].material[j].year, "Solicitado\n");
@@ -1172,6 +1192,9 @@ void addprice(){
         system("clear || cls");
 
         printf(ColorGreen "Preços adicionados com sucesso!\n" ResetColor);
+    }
+    else if(found == 0){
+        printf(ColorYellow "Não há materiais para definir preços!\n" ResetColor);
     }
     else{
         system("clear || cls");
