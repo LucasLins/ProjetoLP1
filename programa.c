@@ -316,7 +316,7 @@ void login(){
             }
             else{
                 system("cls || clear");
-                printf(ColorGreen "\nBem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
+                printf(ColorGreen "Bem vindo(a), %s!\n" ResetColor, account[loggedaccount].name);
                 connected = 1;
                 home();
                 loggedin = 1;
@@ -766,7 +766,7 @@ void buymaterial(){
             work[currentwork].matpos--;
             printf(ColorGreen "Material recusado com sucesso!\n" ResetColor);
     }
-    else if(decision != 1 && decision != 2)
+    else if(decision != 1 && decision != 2 && found > 0)
         printf(ColorRed "Opção ou Material escolhido não existe!\n"ResetColor);
 
     else if(i >= 0 && i < work[currentwork].matpos && work[currentwork].material[i].status == 1 && found > 0 && decision == 1){
