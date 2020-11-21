@@ -28,7 +28,7 @@ char text[201];
 
 // Main menu
 int main(){
-    //setlocale(LC_ALL, "Portuguese");
+    setlocale(LC_ALL, "Portuguese");
 
     do{
         printf(BColorCyan "\n########################" ResetColor);
@@ -60,6 +60,89 @@ int main(){
 }
 
 //General
+void replacechar(char *str){
+    
+    while(strchr(str, '\n') != NULL)
+        str[strcspn(str, "\n")] = ' ';
+}
+
+int checkfile(){
+    FILE* works = fopen("obrasconcluidas.csv", "r");
+    FILE* messagehistory = fopen("mensagens.csv", "r");
+    FILE* materialhistory = fopen("materiais.csv", "r");
+    FILE* employeehistory = fopen("funcionarios.csv", "r");
+
+    if(works && messagehistory && materialhistory && employeehistory){
+        fclose(works);
+        fclose(materialhistory);
+        fclose(messagehistory);
+        fclose(employeehistory);
+        return 1;
+    }
+    return 0;
+}
+
+int savework(int workID){
+    int i;
+    int filecheck = checkfile();
+
+    FILE* works = fopen("obrasconcluidas.csv", "a+");
+    FILE* messagehistory = fopen("mensagens.csv", "a+");
+    FILE* materialhistory = fopen("materiais.csv", "a+");
+    FILE* employeehistory = fopen("funcionarios.csv", "a+"); 
+
+    if(!works || !messagehistory || !materialhistory || !employeehistory){
+        printf(ColorRed "Ocorreu um erro ao abrir o arquivo!\n" ResetColor);
+        return 0;
+    }
+    
+    if(filecheck == 0){ // Adiciona o titulo das colunas caso o arquivo não tenha sido criado
+        fprintf(works, "Nome, Descrição, Custos Materiais (R$), Custos Funcionários (R$), Total (R$)\n");
+        fprintf(messagehistory, "Obra, Data, Autor, Mensagem\n");
+        fprintf(materialhistory, "Obra, Data, Nome, Quantidade, Fornecedor, Preço (R$)\n");
+        fprintf(employeehistory, "Obra, Nome, Especialização, Salário\n");
+        filecheck++;
+    }
+
+    if(filecheck == 1){
+        // Salvando obra
+        
+        replacechar(work[workID].workdescription); // Remove as ocorrencias de \n nas strings, para evitar problemas com o formato csv.
+        fprintf(works, "%s, %s, %.2f, %.2f, %.2f\n", work[workID].workname, work[workID].workdescription, work[workID].totalmaterials, work[workID].totalemployees, work[workID].totalmaterials + work[workID].totalemployees);
+
+        // Salvando mensagens
+        for(i = 0; i < work[workID].messagepos; i++){
+            replacechar(work[workID].message[i].text);
+            fprintf(messagehistory, "%s, %02d/%02d/%d, %s, %s\n", work[workID].workname, work[workID].message[i].day, work[workID].message[i].month, work[workID].message[i].year, work[workID].message[i].author, work[workID].message[i].text);
+        }
+
+        // Salvando Materiais
+        for(i = 0; i < work[workID].matpos; i++){
+            if(work[workID].material[i].status == 3){
+                replacechar(work[workID].material[i].matname);
+                replacechar(work[workID].material[i].quantity);
+                replacechar(work[workID].material[i].finalforn);
+                fprintf(materialhistory, "%s, %02d/%02d/%d, %s, %s, %s, %.2f\n", work[workID].workname, work[workID].material[i].day, work[workID].material[i].month, work[workID].material[i].year, work[workID].material[i].matname, work[workID].material[i].quantity, work[workID].material[i].finalforn, work[workID].material[i].finalprice);
+            }
+        }
+
+        // Salvando Funcionários
+        for(i = 0; i < work[workID].employeepos; i++){
+            if(work[workID].employee[i].hired == 1){
+                replacechar(work[workID].employee[i].name);
+                replacechar(work[workID].employee[i].expertise);
+                fprintf(employeehistory, "%s, %s, %s, %.2f\n", work[workID].workname, work[workID].employee[i].name, work[workID].employee[i].expertise, work[workID].employee[i].salary);
+            }
+        }
+    }
+    
+    fclose(works);
+    fclose(messagehistory);
+    fclose(materialhistory);
+    fclose(employeehistory);
+    return 1;
+}
+
 int partition(int left, int right){
 
 	int pivot = tolower(work[currentwork].employee[right].name[0]);
@@ -517,7 +600,7 @@ void gestor(){
                 break;
 
             case 2:
-                if(workrequestpos <= 5)
+                if(workrequestpos <= 4)
                     requestwork();
                 else 
                     printf(ColorRed "Há muitas solicitações no momento, tente novamente mais tarde.\n" ResetColor);
@@ -557,6 +640,40 @@ void gestor(){
 }
 
 // Área do Engenheiro
+void finishwork(){
+    viewworks();
+    int i, result;
+
+    printf("\nDigite o número da obra que deseja concluir:");
+    printf(ColorGreen "\n-> " ResetColor);
+    getchoice();
+    choice -= 1;
+
+    if(choice >= 0 && choice < workpos){
+
+        result = savework(choice);
+
+        system("clear || cls");
+
+        if(result == 0){
+            printf(ColorRed "Ocorreu um erro ao salvar o relatório da obra. Não foi possível concluir a obra!\n" ResetColor);
+        }
+
+        if(result == 1){
+            for(i = choice; i < workpos; i++){
+                    work[i] = work[i + 1];
+                }
+            workpos--;
+            currentwork = -1;
+
+             printf(ColorGreen "Obra concluída com sucesso! O relatório foi gerado nos arquivos obrasconcluidas.csv, mensagens.csv, materiais.csv e funcionarios.csv!\n" ResetColor);
+        }
+    }
+    else 
+        printf(ColorRed "Obra escolhida não existe!\n" ResetColor);
+}
+
+
 void hireemployees(){
     int i, found = 0;
     char salarystr[20];
@@ -615,9 +732,9 @@ void hireemployees(){
 }
 
 void buymaterial(){
-    int i, found = 0;
-    int j;
-    printf(BColorWhite "                Comprar material                \n" ResetColor);
+    int i = 0, found = 0;
+    int j = 0, decision = 0;
+    printf(BColorWhite "          Comprar ou recusar material           \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
 
     for(i = 0; i < work[currentwork].matpos; i++){
@@ -629,6 +746,11 @@ void buymaterial(){
     }
 
     if(found > 0){
+        printf("\nO que deseja fazer?" ColorYellow " (1 = Comprar material | 2 = Recusar material)");
+        printf(ColorGreen "\n-> " ResetColor);
+        getchoice();
+        decision = choice;
+
         printf("\nDigite o ID do material:");
         printf(ColorGreen "\n-> " ResetColor);
         getchoice();
@@ -637,7 +759,17 @@ void buymaterial(){
 
     system("clear || cls");
 
-    if(i >= 0 && i < work[currentwork].matpos && work[currentwork].material[i].status == 1 && found > 0){
+    if(i >= 0 && i < work[currentwork].matpos && work[currentwork].material[i].status == 1 && found > 0 && decision == 2){
+        for(j = i; j < work[currentwork].matpos; j++){
+                work[currentwork].material[j] = work[currentwork].material[j + 1];
+            }
+            work[currentwork].matpos--;
+            printf(ColorGreen "Material recusado com sucesso!\n" ResetColor);
+    }
+    else if(decision != 1 && decision != 2)
+        printf(ColorRed "Opção ou Material escolhido não existe!\n"ResetColor);
+
+    else if(i >= 0 && i < work[currentwork].matpos && work[currentwork].material[i].status == 1 && found > 0 && decision == 1){
         printf(BColorWhite "                Material escolhido              \n" ResetColor);
         printf(ColorCyan "--------------------------------------------------\n" ResetColor);
         printf(BColorWhite "ID:" ResetColor "%d\n" BColorWhite "Material:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n", i + 1, work[currentwork].material[i].matname, work[currentwork].material[i].quantity, work[currentwork].material[i].day, work[currentwork].material[i].month, work[currentwork].material[i].year);
@@ -726,7 +858,7 @@ void manageworksrequest(){
             printf(ColorGreen "Obra iniciada com sucesso!\n" ResetColor);
         }
         else
-            printf(ColorRed "\nObra selecionada não existe! Tente novamente.\n" ResetColor);
+            printf(ColorRed "Obra selecionada não existe! Tente novamente.\n" ResetColor);
     }
 }
 
@@ -828,13 +960,14 @@ void engenheiro(){
         printf(BColorCyan "\n#         " BColorWhite "Engenheiro" BColorCyan "          #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "1 - Escolher Obra" BColorCyan "           #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "2 - Iniciar Obra" BColorCyan "            #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "3 - Contratar Funcionários" BColorCyan "  #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "4 - Verificar custo da obra" BColorCyan " #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "5 - Selecionar fornecedor e" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "3 - Concluir Obra" BColorCyan "           #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "4 - Contratar Funcionários" BColorCyan "  #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "5 - Verificar custo da obra" BColorCyan " #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "6 - Selecionar fornecedor e" BColorCyan " #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "    finalizar compra" BColorCyan "        #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "6 - Adicionar mensagem de" BColorCyan "   #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "7 - Adicionar mensagem de" BColorCyan "   #" ResetColor);
         printf(BColorCyan "\n# " ResetColor "    acompanhamento da obra" BColorCyan "  #" ResetColor);
-        printf(BColorCyan "\n# " ResetColor "7 - Desconectar da conta" BColorCyan "    #" ResetColor);
+        printf(BColorCyan "\n# " ResetColor "8 - Desconectar da conta" BColorCyan "    #" ResetColor);
         printf(BColorCyan "\n###############################" ResetColor);
         printf("\nO que deseja fazer?");
         printf(ColorGreen "\n-> " ResetColor);
@@ -849,13 +982,20 @@ void engenheiro(){
                 break;
 
             case 2:
-                if(workpos <= 5)
+                 if(workpos <= 5)
                     manageworksrequest();
                 else 
                     printf(ColorRed "Há muitas obras em andamento, aguarde a conclusão de outras obras.\n" ResetColor);
                 break;
 
             case 3:
+                if(workpos > 0)
+                    finishwork();
+                else 
+                    printf(ColorYellow "Não há obras em andamento para concluir!\n" ResetColor);
+                break;
+
+            case 4:
                 if(currentwork > -1){
                     hireemployees();
                 }
@@ -864,7 +1004,7 @@ void engenheiro(){
                 }
                 break;
 
-            case 4:
+            case 5:
                 if(currentwork > -1){
                     totalspending();
                     printf(ColorYellow "\nPressione Enter para retornar..." ResetColor);
@@ -876,19 +1016,19 @@ void engenheiro(){
                 }
                 break;
 
-            case 5:
+            case 6:
                 if(currentwork > -1){
                     if(work[currentwork].matpos > 0)
                         buymaterial();
                     else 
-                        printf(ColorYellow "Não há materiais para comprar\n" ResetColor);
+                        printf(ColorYellow "Não há materiais para comprar!\n" ResetColor);
                 }
                 else{
                     printf(ColorYellow "Você ainda não escolheu uma Obra!\n" ResetColor);
                 }
                 break;
             
-            case 6:
+            case 7:
                 if(currentwork > -1){
                     messages();
                 }
@@ -897,7 +1037,7 @@ void engenheiro(){
                 }
                 break;
             
-            case 7:
+            case 8:
                 printf(ColorYellow "Desconectado, até mais!\n" ResetColor);
                 connected = 0;
                 break;
@@ -1077,18 +1217,19 @@ void mestredeobra(){
 
 // Área do Fornecedor
 void viewmaterialrequest(){
-    int i, j;
+    int i, j, found;
     printf(BColorWhite "           Solicitações de Materiais            \n" ResetColor);
     printf(ColorCyan "--------------------------------------------------\n" ResetColor);
 
     for(i = 0; i < workpos; i++){
         for(j = 0; j < work[i].matpos; j++){
             if(work[i].material[j].status == 0){
+                found++;
                 printf(BColorWhite "\nMaterial:" ResetColor " %s" BColorWhite "Quantidade:" ResetColor " %s" BColorWhite "Data: " ResetColor "%02d/%02d/%d\n" BColorWhite "Status:" ResetColor " %s", work[i].material[j].matname, work[i].material[j].quantity, work[i].material[j].day, work[i].material[j].month, work[i].material[j].year, "Solicitado\n");
                 printf(ColorCyan "--------------------------------------------------\n" ResetColor);
             }
         }
-        if(work[i].matpos == 0){
+        if(found == 0){
             system("clear || cls");
             printf(ColorYellow "Não há solicitações de materiais para exibir\n" ResetColor);
         }

@@ -32,6 +32,7 @@ void viewmaterials(void);
 void requestemployees(void);
 void hireemployees(void);
 void viewemployees(void);
+void finishwork(void);
 
 //// Login
 void home(void);
@@ -42,6 +43,9 @@ void authlogin(void);
 void clearinput(void);
 void formattext(void);
 void getdate(void);
+void replacechar(char *str);
+int checkfile(void);
+int savework(int workID);
 int partition(int left, int right);
 void quicksort(int left, int right);
 
