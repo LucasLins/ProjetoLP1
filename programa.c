@@ -28,6 +28,7 @@ char text[201];
 
 // Main menu
 int main(){
+    system("clear || cls");
     setlocale(LC_ALL, "Portuguese");
 
     do{
@@ -97,10 +98,10 @@ int savework(int workID){
     }
     
     if(filecheck == 0){ // Adiciona o titulo das colunas caso o arquivo não tenha sido criado
-        fprintf(works, "Nome, Descrição, Custos Materiais (R$), Custos Funcionários (R$), Total (R$)\n");
-        fprintf(messagehistory, "Obra, Data, Autor, Mensagem\n");
-        fprintf(materialhistory, "Obra, Data, Nome, Quantidade, Fornecedor, Preço (R$)\n");
-        fprintf(employeehistory, "Obra, Nome, Especialização, Salário\n");
+        fprintf(works, "Nome; Descrição; Custos Materiais (R$); Custos Funcionários (R$); Total (R$)\n");
+        fprintf(messagehistory, "Obra; Data; Autor; Mensagem\n");
+        fprintf(materialhistory, "Obra; Data; Nome; Quantidade; Fornecedor; Preço (R$)\n");
+        fprintf(employeehistory, "Obra; Nome; Especialização; Salário\n");
         filecheck++;
     }
 
@@ -108,12 +109,12 @@ int savework(int workID){
         // Salvando obra
         
         replacechar(work[workID].workdescription); // Remove as ocorrencias de \n nas strings, para evitar problemas com o formato csv.
-        fprintf(works, "%s, %s, %.2f, %.2f, %.2f\n", work[workID].workname, work[workID].workdescription, work[workID].totalmaterials, work[workID].totalemployees, work[workID].totalmaterials + work[workID].totalemployees);
+        fprintf(works, "%s; %s; %.2f; %.2f; %.2f\n", work[workID].workname, work[workID].workdescription, work[workID].totalmaterials, work[workID].totalemployees, work[workID].totalmaterials + work[workID].totalemployees);
 
         // Salvando mensagens
         for(i = 0; i < work[workID].messagepos; i++){
             replacechar(work[workID].message[i].text);
-            fprintf(messagehistory, "%s, %02d/%02d/%d, %s, %s\n", work[workID].workname, work[workID].message[i].day, work[workID].message[i].month, work[workID].message[i].year, work[workID].message[i].author, work[workID].message[i].text);
+            fprintf(messagehistory, "%s; %02d/%02d/%d; %s; %s\n", work[workID].workname, work[workID].message[i].day, work[workID].message[i].month, work[workID].message[i].year, work[workID].message[i].author, work[workID].message[i].text);
         }
 
         // Salvando Materiais
@@ -122,7 +123,7 @@ int savework(int workID){
                 replacechar(work[workID].material[i].matname);
                 replacechar(work[workID].material[i].quantity);
                 replacechar(work[workID].material[i].finalforn);
-                fprintf(materialhistory, "%s, %02d/%02d/%d, %s, %s, %s, %.2f\n", work[workID].workname, work[workID].material[i].day, work[workID].material[i].month, work[workID].material[i].year, work[workID].material[i].matname, work[workID].material[i].quantity, work[workID].material[i].finalforn, work[workID].material[i].finalprice);
+                fprintf(materialhistory, "%s; %02d/%02d/%d; %s; %s; %s; %.2f\n", work[workID].workname, work[workID].material[i].day, work[workID].material[i].month, work[workID].material[i].year, work[workID].material[i].matname, work[workID].material[i].quantity, work[workID].material[i].finalforn, work[workID].material[i].finalprice);
             }
         }
 
@@ -131,7 +132,7 @@ int savework(int workID){
             if(work[workID].employee[i].hired == 1){
                 replacechar(work[workID].employee[i].name);
                 replacechar(work[workID].employee[i].expertise);
-                fprintf(employeehistory, "%s, %s, %s, %.2f\n", work[workID].workname, work[workID].employee[i].name, work[workID].employee[i].expertise, work[workID].employee[i].salary);
+                fprintf(employeehistory, "%s; %s; %s; %.2f\n", work[workID].workname, work[workID].employee[i].name, work[workID].employee[i].expertise, work[workID].employee[i].salary);
             }
         }
     }
